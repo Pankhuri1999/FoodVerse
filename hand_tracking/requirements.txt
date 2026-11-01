@@ -1,0 +1,4 @@
+# MediaPipe 0.10.x includes Hands solutions + pulls opencv-contrib-python.
+# Do not also pin opencv-python here — dual OpenCV wheels conflict on Windows.
+mediapipe==0.10.14
+numpy>=1.24.0,<2
