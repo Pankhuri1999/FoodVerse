@@ -9,7 +9,10 @@ Space affects cooking → Cooking creates life → Life transforms worlds.
 ## Current status
 
 **Phase 1** — Webcam hand tracking (ready)  
-**Phase 2** — Unity hand cursor + cosmic fruit grab (scripts ready)
+**Phase 2** — Hand pinch grab + cosmic fruit (ready)  
+**Phase 3** — Cosmic Kitchen + bowl + zero-G (ready)  
+**Phase 4** — Cooking + recipe discovery (ready)  
+**Phase 5** — Edible world-building / Cookie Kingdom (ready to play)
 
 ## Project layout
 
@@ -38,15 +41,58 @@ cd hand_tracking
 
 Or double-click `hand_tracking\run.bat`.
 
-## Phase 2: Grab a cosmic fruit in Unity
+## Phase 2: Grab a cosmic fruit
 
-See [docs/PHASE2.md](docs/PHASE2.md) for full steps.
+**Today (no Unity required):**
 
-Short version:
-1. Open `UnityProject` in Unity Hub (2022.3 LTS recommended).
-2. New empty scene → add `Phase2Bootstrap` component → **Play**.
-3. Double-click `hand_tracking\run_bridge.bat`.
-4. Pinch near the pink fruit to grab it.
+```powershell
+cd hand_tracking
+.\run_phase2_preview.bat
+```
+
+Pinch the on-screen fruit to grab it.
+
+**Full Unity path** (install [Unity Hub](https://unity.com/download) + 2022.3 LTS first):
+
+1. Open `UnityProject` in Hub.
+2. Menu **FOODIVERSE → Create Phase 2 Scene** → **Play**.
+3. Run `hand_tracking\run_bridge.bat`.
+4. Pinch near the pink fruit.
+
+Details: [docs/PHASE2.md](docs/PHASE2.md)
+
+## Phase 3: Cosmic Kitchen
+
+```powershell
+cd hand_tracking
+.\run_phase3.bat
+```
+
+Pinch ingredients into the mixing bowl. Press **G** for zero-G, **R** to reset.
+
+Details: [docs/PHASE3.md](docs/PHASE3.md)
+
+## Phase 4: Cooking
+
+```powershell
+cd hand_tracking
+.\run_phase4.bat
+```
+
+Drop recipe pairs in the bowl → **H** heat / **C** cool → pinch-stir in circles over the bowl.
+
+Details: [docs/PHASE4.md](docs/PHASE4.md)
+
+## Phase 5: World-building
+
+```powershell
+cd hand_tracking
+.\run_phase5.bat
+```
+
+Pinch Cookie Bridge / Chocolate River / Crystal Peak / Leaf Grove into glowing kingdom slots.
+
+Details: [docs/PHASE5.md](docs/PHASE5.md)
 
 ## Roadmap
 

@@ -39,6 +39,8 @@ def main() -> None:
     assert open_hand.detected and not open_hand.is_pinching, open_hand
     assert pinched.detected and pinched.is_pinching, pinched
     assert pinched.pinch_distance < PINCH_THRESHOLD <= open_hand.pinch_distance
+    # Grab point should be near fingertips, not the wrist (0.5, 0.5).
+    assert abs(pinched.x - 0.49) < 0.05 and abs(pinched.y - 0.30) < 0.05, pinched
 
     idle = HandState()
     assert not idle.detected
@@ -46,6 +48,7 @@ def main() -> None:
     print(f"PINCH_THRESHOLD={PINCH_THRESHOLD}")
     print(f"open  pinch_distance={open_hand.pinch_distance:.3f} is_pinching={open_hand.is_pinching}")
     print(f"pinch pinch_distance={pinched.pinch_distance:.3f} is_pinching={pinched.is_pinching}")
+    print(f"pinch grab_xy=({pinched.x:.3f}, {pinched.y:.3f})")
     print("smoke_test OK")
 
 

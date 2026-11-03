@@ -8,6 +8,7 @@ namespace Foodiverse.Ingredients
     [RequireComponent(typeof(Rigidbody))]
     public sealed class GrabbableIngredient : MonoBehaviour
     {
+        [SerializeField] string ingredientId = "Cosmic Fruit";
         [SerializeField] float heldDrag = 12f;
         [SerializeField] float releaseInheritVelocity = 0.35f;
 
@@ -16,7 +17,13 @@ namespace Foodiverse.Ingredients
         Vector3 _lastFollowPos;
         bool _held;
 
+        public string IngredientId => string.IsNullOrWhiteSpace(ingredientId) ? gameObject.name : ingredientId;
         public bool CanGrab => !_held;
+
+        public void Configure(string id)
+        {
+            ingredientId = id;
+        }
 
         void Awake()
         {

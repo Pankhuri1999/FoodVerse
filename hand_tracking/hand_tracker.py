@@ -47,8 +47,8 @@ INDEX_TIP = 8
 WRIST = 0
 
 # Pinch distance as a fraction of hand size (wrist → middle MCP).
-# Tuned for seated webcam distance; adjust if grab feels too eager / too stiff.
-PINCH_THRESHOLD = 0.35
+# Forgiving for seated webcam distance and soft pinches around objects.
+PINCH_THRESHOLD = 0.55
 
 
 @dataclass
@@ -56,7 +56,7 @@ class HandState:
     """Normalized hand data ready for Unity / gameplay consumers."""
 
     detected: bool = False
-    # Palm / wrist position in [0, 1], origin top-left of the camera frame.
+    # Grab point = midpoint of thumb tip + index tip ([0, 1], origin top-left).
     x: float = 0.0
     y: float = 0.0
     # Approximate depth proxy from hand size (larger hand → closer → higher z).
@@ -82,14 +82,18 @@ def compute_hand_state(landmarks, handedness_score: float = 1.0) -> HandState:
     pinch_norm = pinch_raw / hand_size
     is_pinching = pinch_norm < PINCH_THRESHOLD
 
+    # Interaction point is where you pinch — not the wrist.
+    grab_x = (thumb.x + index.x) * 0.5
+    grab_y = (thumb.y + index.y) * 0.5
+
     # Depth proxy: hand_size grows as the hand moves toward the camera.
     # Clamp into a comfortable [0, 1] band for the desktop prototype.
     z = float(np.clip((hand_size - 0.08) / 0.25, 0.0, 1.0))
 
     return HandState(
         detected=True,
-        x=float(wrist.x),
-        y=float(wrist.y),
+        x=float(grab_x),
+        y=float(grab_y),
         z=z,
         is_pinching=is_pinching,
         pinch_distance=float(pinch_norm),
@@ -120,8 +124,10 @@ def draw_overlay(frame: np.ndarray, state: HandState, landmarks, connections) ->
         cv2.circle(frame, pt1, 8, color, -1)
         cv2.circle(frame, pt2, 8, color, -1)
 
+        # Yellow reticle = grab point (pinch midpoint).
         cursor = (int(state.x * w), int(state.y * h))
-        cv2.circle(frame, cursor, 12, (255, 200, 50), 2)
+        cv2.circle(frame, cursor, 16, (255, 200, 50), 2)
+        cv2.drawMarker(frame, cursor, (255, 200, 50), cv2.MARKER_CROSS, 12, 2)
 
     status = "PINCH / GRAB" if state.is_pinching else "OPEN"
     status_color = (0, 220, 120) if state.is_pinching else (200, 200, 200)

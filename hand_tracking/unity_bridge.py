@@ -4,7 +4,7 @@ FOODIVERSE Phase 2 — stream hand tracking to Unity over UDP.
 Sends one JSON packet per frame to 127.0.0.1:5005:
 {
   "detected": true,
-  "x": 0.0-1.0,   # mirrored webcam space, origin top-left
+  "x": 0.0-1.0,   # pinch midpoint (grab point), origin top-left
   "y": 0.0-1.0,
   "z": 0.0-1.0,   # depth proxy (closer hand → higher)
   "pinch": true,
