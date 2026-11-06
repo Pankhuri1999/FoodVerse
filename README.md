@@ -12,7 +12,10 @@ Space affects cooking → Cooking creates life → Life transforms worlds.
 **Phase 2** — Hand pinch grab + cosmic fruit (ready)  
 **Phase 3** — Cosmic Kitchen + bowl + zero-G (ready)  
 **Phase 4** — Cooking + recipe discovery (ready)  
-**Phase 5** — Edible world-building / Cookie Kingdom (ready to play)
+**Phase 5** — Edible world-building / Cookie Kingdom (ready)  
+**Phase 6** — Creature abilities (ready)  
+**Phase 7** — Cookie Kingdom rescue mission (ready)  
+**Phase 8** — Full kingdom restoration + Quest prep (ready to play)
 
 ## Project layout
 
@@ -94,6 +97,38 @@ Pinch Cookie Bridge / Chocolate River / Crystal Peak / Leaf Grove into glowing k
 
 Details: [docs/PHASE5.md](docs/PHASE5.md)
 
+## Phase 6: Creature abilities
+
+```powershell
+cd hand_tracking
+.\run_phase6.bat
+```
+
+Drag Ember / Grove / Mint to challenges and press **A** or **Space** to activate.
+
+Details: [docs/PHASE6.md](docs/PHASE6.md)
+
+## Phase 7: Rescue mission
+
+```powershell
+cd hand_tracking
+.\run_phase7.bat
+```
+
+One guided loop: collect → cook Ember → build bridge → melt ice gate → restore.
+
+Details: [docs/PHASE7.md](docs/PHASE7.md)
+
+## Phase 8: Full kingdom restoration
+
+```powershell
+cd hand_tracking
+.\run_phase8.bat
+```
+
+Ember melts ice → Grove grows forest → Mint freezes water → full celebration.  
+Quest readiness: [docs/QUEST.md](docs/QUEST.md) · details: [docs/PHASE8.md](docs/PHASE8.md)
+
 ## Roadmap
 
 | Phase | Deliverable |
@@ -105,7 +140,7 @@ Details: [docs/PHASE5.md](docs/PHASE5.md)
 | 5 | Edible world-building |
 | 6 | Three creatures |
 | 7 | Cookie Kingdom rescue mission |
-| 8 | Meta Quest VR polish |
+| 8 | Full restoration (3 creatures) + Quest prep |
 
 ## Platform plan
 
