@@ -30,6 +30,9 @@ import numpy as np
 
 from creatures import draw_creature
 from hand_tracker import HandState, compute_hand_state, draw_overlay
+from visual_theme import (
+    CYAN, GOLD, MINT, NAVY, VIOLET, WHITE, ascii_text, filled_round, round_panel, ui_scale,
+)
 
 try:
     import winsound
@@ -163,16 +166,21 @@ class Mission:
         self.message = "Full restoration mission — pinch or wait to begin"
         self.message_color = (255, 220, 120)
 
-        self.bowl = (self.w * 0.78, self.h * 0.38, 110.0, 55.0)
-        self.bridge_socket = (self.w * 0.42, self.h * 0.58)
-        self.ice_pos = (self.w * 0.43, self.h * 0.48)
-        self.barren_pos = (self.w * 0.22, self.h * 0.62)
-        self.water_pos = (self.w * 0.72, self.h * 0.64)
+        self.bowl = (
+            self.w * 0.50,
+            self.h * 0.50,
+            max(96.0, self.w * 0.09),
+            max(48.0, self.h * 0.072),
+        )
+        self.bridge_socket = (self.w * 0.50, self.h * 0.64)
+        self.ice_pos = (self.w * 0.38, self.h * 0.62)
+        self.barren_pos = (self.w * 0.30, self.h * 0.56)
+        self.water_pos = (self.w * 0.66, self.h * 0.58)
 
         self.buddies = {
-            "ember": Buddy("ember", "Ember Dragon", (self.w * 0.14, self.h * 0.40)),
-            "grove": Buddy("grove", "Grove Guardian", (self.w * 0.14, self.h * 0.40)),
-            "mint": Buddy("mint", "Mint Current", (self.w * 0.14, self.h * 0.40)),
+            "ember": Buddy("ember", "Ember Dragon", (self.w * 0.34, self.h * 0.34)),
+            "grove": Buddy("grove", "Grove Guardian", (self.w * 0.34, self.h * 0.34)),
+            "mint": Buddy("mint", "Mint Current", (self.w * 0.34, self.h * 0.34)),
         }
         for b in self.buddies.values():
             b.park()
@@ -181,12 +189,12 @@ class Mission:
             ("Cosmic Fruit", (90, 90, 255), "circle"),
             ("Star-Pepper", (40, 40, 255), "star"),
         )
-        home = (self.w * 0.18, self.h * 0.55)
+        home = (self.w * 0.30, self.h * 0.48)
         self.bridge = BridgePiece(home[0], home[1], home)
 
     def _spawn_pair(self, a: Tuple[str, Tuple[int, int, int], str], b: Tuple[str, Tuple[int, int, int], str]) -> None:
-        p1 = (self.w * 0.18, self.h * 0.26)
-        p2 = (self.w * 0.34, self.h * 0.26)
+        p1 = (self.w * 0.17, self.h * 0.42)
+        p2 = (self.w * 0.17, self.h * 0.62)
         self.items = [
             Item(a[0], a[1], a[2], p1[0], p1[1], p1),
             Item(b[0], b[1], b[2], p2[0], p2[1], p2),
@@ -534,16 +542,14 @@ class Mission:
                 color = item.color if item else (200, 200, 200)
                 cv2.circle(frame, (int(self.bowl[0] - 30 + i * 40), int(self.bowl[1] + 8)), 12, color, -1)
 
-        if self.stage.startswith("cook"):
-            self._draw_cook_hud(frame)
-
         if self.stage in ("build", "melt", "grow", "freeze", "restored",
                           "collect_grove", "cook_grove", "collect_mint", "cook_mint") and self.bridge:
             if not self.bridge.placed and self.stage == "build":
                 sx, sy = int(self.bridge_socket[0]), int(self.bridge_socket[1])
                 pulse = 0.5 + 0.5 * math.sin(self.anim_t * 4)
-                cv2.circle(frame, (sx, sy), 42, (int(100 + 80 * pulse), 200, 255), 2)
-                cv2.putText(frame, "GAP", (sx - 18, sy + 5), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (140, 200, 255), 1)
+                cv2.circle(frame, (sx, sy), 42, CYAN, 2, cv2.LINE_AA)
+                cv2.circle(frame, (sx, sy), int(28 + 6 * pulse), VIOLET, 1, cv2.LINE_AA)
+                cv2.putText(frame, "GAP", (sx - 18, sy + 5), cv2.FONT_HERSHEY_SIMPLEX, 0.5, WHITE, 1, cv2.LINE_AA)
             self._draw_bridge_piece(frame, self.bridge)
 
         # Challenge targets
@@ -580,16 +586,115 @@ class Mission:
             self._draw_citizens(frame)
             self._draw_soft_glow(frame, self.w // 2, int(self.h * 0.55), 200, (80, 200, 255), 0.2)
 
-        # Soft glass HUD
-        self._draw_holo_panel(frame, 8, 8, 620, 72)
-        cv2.putText(frame, "FOODIVERSE  ·  Cosmic Kitchen", (22, 34),
-                    cv2.FONT_HERSHEY_SIMPLEX, 0.55, (240, 240, 245), 1, cv2.LINE_AA)
-        cv2.putText(frame, STAGE_TITLE.get(self.stage, self.stage), (22, 58),
-                    cv2.FONT_HERSHEY_SIMPLEX, 0.45, (200, 210, 220), 1, cv2.LINE_AA)
+        self._draw_hud(frame)
 
-        self._draw_holo_panel(frame, 8, self.h - 58, self.w - 16, 50)
-        cv2.putText(frame, self.message + "   | r restart  q quit", (22, self.h - 24),
-                    cv2.FONT_HERSHEY_SIMPLEX, 0.45, self.message_color, 1, cv2.LINE_AA)
+    def _recipe_card(self) -> Tuple[str, str, str]:
+        if self.stage in ("intro", "collect_ember", "cook_ember"):
+            return "EMBER", "Fruit + Pepper", "H heat, then stir"
+        if self.stage in ("collect_grove", "cook_grove"):
+            return "GROVE", "Leaves + Sugar", "Stir to grow"
+        if self.stage in ("collect_mint", "cook_mint"):
+            return "MINT", "Chocolate + Mint", "C cool, then stir"
+        if self.stage in ("build", "melt"):
+            return "BRIDGE", "Ice gate ahead", "Pinch, then drop"
+        if self.stage == "grow":
+            return "GROVE", "Barren soil", "Drop the guardian"
+        if self.stage == "freeze":
+            return "MINT", "Water path", "Drop to freeze"
+        return "FEAST", "Kingdom open", "Mission complete"
+
+    def _draw_hud(self, frame: np.ndarray) -> None:
+        """Mission across the top, pantry on the left, recipe on the right, status along the console."""
+        w, h = self.w, self.h
+        title_size = max(0.42, min(0.55, ui_scale(w)))
+        top_h = 58
+        round_panel(frame, 12, 10, min(430, w // 2 - 24), top_h, 16)
+        cv2.putText(frame, "FOODIVERSE", (26, 34),
+                    cv2.FONT_HERSHEY_SIMPLEX, title_size, GOLD, 1, cv2.LINE_AA)
+        cv2.putText(frame, ascii_text(STAGE_TITLE.get(self.stage, self.stage)), (26, 54),
+                    cv2.FONT_HERSHEY_SIMPLEX, title_size * 0.72, CYAN, 1, cv2.LINE_AA)
+
+        status_w = min(250, w // 3)
+        round_panel(frame, w - status_w - 12, 10, status_w, top_h, 16)
+        cv2.circle(frame, (w - status_w + 10, 32), 4, MINT, -1, cv2.LINE_AA)
+        cv2.putText(frame, "CANOPY  LIVE", (w - status_w + 22, 36),
+                    cv2.FONT_HERSHEY_SIMPLEX, 0.42, WHITE, 1, cv2.LINE_AA)
+        cv2.putText(frame, "GRAVITY  ZERO-G", (w - status_w + 22, 54),
+                    cv2.FONT_HERSHEY_SIMPLEX, 0.42, CYAN, 1, cv2.LINE_AA)
+
+        self._draw_side_cards(frame)
+        self._draw_console_bar(frame, title_size)
+
+    def _draw_side_cards(self, frame: np.ndarray) -> None:
+        """Left pantry stays above the ingredient platforms. Recipe stays right of the mixer."""
+        cooking = self.stage in (
+            "intro", "collect_ember", "cook_ember", "collect_grove", "cook_grove",
+            "collect_mint", "cook_mint",
+        )
+        top = 76
+        if cooking and self.items:
+            first = min(item.home[1] for item in self.items)
+            pantry_bottom = int(first - GRAB - 18)
+            pantry_h = pantry_bottom - top
+            pantry_w = min(230, max(120, int(self.w * 0.20)))
+            if pantry_h >= 58:
+                round_panel(frame, 14, top, pantry_w, pantry_h, 14)
+                cv2.putText(frame, "PANTRY", (28, top + 22),
+                            cv2.FONT_HERSHEY_SIMPLEX, 0.42, GOLD, 1, cv2.LINE_AA)
+                y = top + 44
+                for item in self.items[:2]:
+                    if y > top + pantry_h - 10:
+                        break
+                    state = "HOLD" if item.held else ("IN MIXER" if item.in_bowl else "READY")
+                    short = item.name.replace("Cosmic ", "").replace("Crystal ", "").replace("Space ", "")
+                    cv2.putText(frame, short[:12], (28, y),
+                                cv2.FONT_HERSHEY_SIMPLEX, 0.38, WHITE, 1, cv2.LINE_AA)
+                    cv2.putText(frame, state, (28 + pantry_w - 78, y),
+                                cv2.FONT_HERSHEY_SIMPLEX, 0.36, MINT if item.in_bowl else CYAN, 1, cv2.LINE_AA)
+                    y += 22
+
+        name, pair, hint = self._recipe_card()
+        card_w = min(250, max(160, int(self.w * 0.22)))
+        card_h = 128 if self.stage.startswith("cook") else 96
+        card_x = self.w - card_w - 14
+        guard = int(max(self.bowl[0] + self.bowl[2], self.water_pos[0] + 70) + 16)
+        if card_x < guard:
+            card_x = guard
+            card_w = max(0, self.w - 14 - card_x)
+        if card_w >= 156 and top + card_h < int(self.h * 0.78):
+            round_panel(frame, card_x, top, card_w, card_h, 14)
+            cv2.putText(frame, "QUANTUM MIXER", (card_x + 14, top + 22),
+                        cv2.FONT_HERSHEY_SIMPLEX, 0.40, GOLD, 1, cv2.LINE_AA)
+            cv2.putText(frame, name, (card_x + 14, top + 44),
+                        cv2.FONT_HERSHEY_SIMPLEX, 0.42, WHITE, 1, cv2.LINE_AA)
+            cv2.putText(frame, pair, (card_x + 14, top + 64),
+                        cv2.FONT_HERSHEY_SIMPLEX, 0.36, CYAN, 1, cv2.LINE_AA)
+            cv2.putText(frame, hint, (card_x + 14, top + 82),
+                        cv2.FONT_HERSHEY_SIMPLEX, 0.34, WHITE, 1, cv2.LINE_AA)
+            if self.stage.startswith("cook"):
+                bar_w = card_w - 28
+                filled_round(frame, card_x + 14, top + 94, bar_w, 10, (24, 18, 14), 5, 1.0)
+                filled_round(frame, card_x + 14, top + 94, max(8, int(bar_w * self.stir)), 10, MINT, 5, 1.0)
+                temp = self.temperature.upper()
+                temp_color = GOLD if self.temperature == "hot" else (CYAN if self.temperature == "cold" else WHITE)
+                cv2.putText(frame, temp, (card_x + 14, top + 118),
+                            cv2.FONT_HERSHEY_SIMPLEX, 0.36, temp_color, 1, cv2.LINE_AA)
+
+    def _draw_console_bar(self, frame: np.ndarray, title_size: float) -> None:
+        w, h = self.w, self.h
+        bar_y = h - 54
+        round_panel(frame, 12, bar_y, w - 24, 42, 14)
+        cv2.putText(frame, "ZERO-G", (26, bar_y + 26),
+                    cv2.FONT_HERSHEY_SIMPLEX, 0.42, CYAN, 1, cv2.LINE_AA)
+        note = ascii_text(self.message)
+        max_chars = max(16, (w - 420) // 9)
+        if len(note) > max_chars:
+            note = note[: max_chars - 3] + "..."
+        color = WHITE if sum(self.message_color) < 320 else self.message_color
+        cv2.putText(frame, note, (118, bar_y + 26),
+                    cv2.FONT_HERSHEY_SIMPLEX, max(0.38, title_size * 0.68), color, 1, cv2.LINE_AA)
+        cv2.putText(frame, "PINCH   H C S   R Q", (w - 210, bar_y + 26),
+                    cv2.FONT_HERSHEY_SIMPLEX, 0.40, GOLD, 1, cv2.LINE_AA)
 
     def _blend(self, frame: np.ndarray, overlay: np.ndarray, alpha: float) -> None:
         cv2.addWeighted(overlay, alpha, frame, 1.0 - alpha, 0, frame)
@@ -929,52 +1034,202 @@ class Mission:
         self._view_wh = (w, h)
         return img
 
+    def _star_field(self, w: int, h: int):
+        if getattr(self, "_star_wh2", None) == (w, h):
+            return self._stars_far, self._stars_near
+        rng = np.random.RandomState(23)
+        far = [(int(rng.randint(0, w)), int(rng.randint(0, h)), int(80 + 140 * rng.rand())) for _ in range(280)]
+        near = [(int(rng.randint(0, w)), int(rng.randint(0, h)), 1 + int(rng.rand() > 0.7), int(160 + 95 * rng.rand())) for _ in range(70)]
+        self._stars_far, self._stars_near = far, near
+        self._star_wh2 = (w, h)
+        return far, near
+
+    def _paint_planet(self, img: np.ndarray, cx: int, cy: int, r: int, color: Tuple[int, int, int]) -> None:
+        if r < 4 or cx < -r or cy < -r or cx > img.shape[1] + r or cy > img.shape[0] + r:
+            return
+        glow = img.copy()
+        cv2.circle(glow, (cx, cy), r + 8, color, -1, cv2.LINE_AA)
+        glow = cv2.GaussianBlur(glow, (0, 0), 4)
+        cv2.addWeighted(glow, 0.35, img, 0.65, 0, img)
+        cv2.circle(img, (cx, cy), r, color, -1, cv2.LINE_AA)
+        cv2.ellipse(img, (cx - r // 4, cy - r // 4), (max(3, r // 3), max(2, r // 4)), -18, 0, 360, (245, 245, 250), -1, cv2.LINE_AA)
+        cv2.addWeighted(img, 0.78, img, 0.22, 0, img)
+        night = img.copy()
+        cv2.ellipse(night, (cx + r // 3, cy), (int(r * 0.72), r), 0, 0, 360, (8, 8, 10), -1, cv2.LINE_AA)
+        clip = np.zeros(img.shape[:2], np.uint8)
+        cv2.circle(clip, (cx, cy), r, 255, -1, cv2.LINE_AA)
+        blended = cv2.addWeighted(img, 0.7, night, 0.3, 0)
+        img[clip == 255] = blended[clip == 255]
+
+    def _draw_passing_space(self, frame: np.ndarray) -> None:
+        """Stars and planets travel across the canopy. The cabin stays still."""
+        w, h = self.w, self.h
+        from visual_theme import cached_nebula
+        space = cached_nebula(w, h).copy()
+        shift = int(self.anim_t * 6) % w
+        space = np.roll(space, -shift, axis=1)
+        far, near = self._star_field(w, h)
+        bob = int(5 * math.sin(self.anim_t * 0.35))
+        for x, y, bright in far:
+            sx = int((x - self.anim_t * 14) % w)
+            sy = (y + bob) % h
+            tint = WHITE if bright > 180 else CYAN
+            cv2.circle(space, (sx, sy), 1, tint, -1, cv2.LINE_AA)
+        for i, (x, y, size, bright) in enumerate(near):
+            sx = int((x - self.anim_t * 42) % w)
+            sy = int((y + bob * 1.4) % h)
+            tint = GOLD if i % 5 == 0 else WHITE
+            cv2.circle(space, (sx, sy), size, tint, -1, cv2.LINE_AA)
+
+        span = w + 220
+        planets = (
+            (0.15, 0.22, 34, 28.0, CYAN),
+            (0.55, 0.16, 18, 55.0, VIOLET),
+            (0.80, 0.18, 46, 18.0, GOLD),
+            (0.35, 0.48, 14, 70.0, MINT),
+        )
+        for phase, fy, radius, speed, color in planets:
+            px = int((phase * span) - (self.anim_t * speed) % span) - 40
+            py = int(h * fy + 6 * math.sin(self.anim_t * 0.4 + phase))
+            self._paint_planet(space, px, py, radius, color)
+            if radius > 30:
+                cv2.ellipse(space, (px, py), (radius + 16, 4), -16, 0, 360, color, 1, cv2.LINE_AA)
+
+        win = self._window_mask(w, h)[:, :, None]
+        base = frame.astype(np.float32)
+        sky = space.astype(np.float32)
+        frame[:] = np.clip(base * (1.0 - win) + sky * win, 0, 255).astype(np.uint8)
+
+    def _draw_astronaut(self, frame: np.ndarray) -> None:
+        """Small suited pilot. The live face is scaled into the helmet."""
+        w, h = self.w, self.h
+        cx, cy = int(w * 0.50), int(h * 0.86)
+        suit = (168, 150, 132)
+        cloth = (210, 198, 180)
+        # Seated suit with a soft chest plate and cyan seams
+        cv2.ellipse(frame, (cx, cy + 78), (34, 10), 0, 0, 360, (12, 10, 8), -1, cv2.LINE_AA)
+        cv2.ellipse(frame, (cx, cy + 58), (46, 62), 0, 0, 360, suit, -1, cv2.LINE_AA)
+        cv2.ellipse(frame, (cx, cy + 46), (26, 32), 0, 0, 360, cloth, -1, cv2.LINE_AA)
+        cv2.ellipse(frame, (cx - 52, cy + 46), (22, 14), 20, 0, 360, suit, -1, cv2.LINE_AA)
+        cv2.ellipse(frame, (cx + 52, cy + 46), (22, 14), -20, 0, 360, suit, -1, cv2.LINE_AA)
+        cv2.line(frame, (cx - 18, cy + 28), (cx - 18, cy + 78), CYAN, 1, cv2.LINE_AA)
+        cv2.line(frame, (cx + 18, cy + 28), (cx + 18, cy + 78), CYAN, 1, cv2.LINE_AA)
+        cv2.circle(frame, (cx, cy + 38), 7, GOLD, -1, cv2.LINE_AA)
+        cv2.circle(frame, (cx, cy + 38), 11, GOLD, 1, cv2.LINE_AA)
+        cv2.rectangle(frame, (cx - 16, cy + 8), (cx + 16, cy + 26), (42, 36, 28), -1)
+        cv2.circle(frame, (cx, cy - 8), 40, (36, 30, 24), -1, cv2.LINE_AA)
+        cv2.circle(frame, (cx, cy - 8), 33, (18, 14, 12), -1, cv2.LINE_AA)
+        self._fit_face_in_helmet(frame, cx, cy - 8, 29)
+        cv2.circle(frame, (cx, cy - 8), 33, GOLD, 2, cv2.LINE_AA)
+        cv2.ellipse(frame, (cx - 8, cy - 18), (12, 5), -25, 0, 360, WHITE, 1, cv2.LINE_AA)
+
+    def _fit_face_in_helmet(self, frame: np.ndarray, hx: int, hy: int, radius: int) -> None:
+        pilot = getattr(self, "_pilot", None)
+        mask = getattr(self, "_pilot_mask", None)
+        if pilot is None or mask is None:
+            return
+        ys, xs = np.where(mask > 0.55)
+        if xs.size < 80:
+            return
+        x0, x1 = int(xs.min()), int(xs.max())
+        y0, y1 = int(ys.min()), int(ys.max())
+        # Use the upper part of the person so the face, not the torso, fills the helmet.
+        head_h = max(24, int((y1 - y0) * 0.46))
+        head_w = max(24, x1 - x0)
+        crop = pilot[y0:y0 + head_h, x0:x0 + head_w]
+        if crop.size == 0:
+            return
+        side = radius * 2
+        face = cv2.resize(crop, (side, side), interpolation=cv2.INTER_AREA)
+        disc = np.zeros((side, side), np.float32)
+        cv2.circle(disc, (radius, radius), radius - 1, 1.0, -1, cv2.LINE_AA)
+        disc = cv2.GaussianBlur(disc, (0, 0), 1.2)
+        x = hx - radius
+        y = hy - radius
+        fh, fw = frame.shape[:2]
+        if x < 0 or y < 0 or x + side > fw or y + side > fh:
+            return
+        roi = frame[y:y + side, x:x + side].astype(np.float32)
+        m = disc[:, :, None]
+        frame[y:y + side, x:x + side] = np.clip(roi * (1.0 - m) + face.astype(np.float32) * m, 0, 255).astype(np.uint8)
+
+    def _canopy_geom(self) -> Tuple[int, int, int, int]:
+        """Center and radii of the curved observation glass."""
+        return (self.w // 2, int(self.h * 0.28), int(self.w * 0.36), int(self.h * 0.18))
+
     def _window_mask(self, w: int, h: int) -> np.ndarray:
-        """Canopy opening: space is only visible through this glass."""
+        """Soft-edged canopy glass. Cached per resolution."""
+        key = (w, h, "canopy")
+        cached = getattr(self, "_mask_cache", None)
+        if cached is not None and getattr(self, "_mask_key", None) == key:
+            return cached
+        cx, cy, rx, ry = self._canopy_geom()
         mask = np.zeros((h, w), dtype=np.float32)
-        cv2.ellipse(mask, (w // 2, int(h * 0.36)), (int(w * 0.40), int(h * 0.30)), 0, 0, 360, 1.0, -1)
+        cv2.ellipse(mask, (cx, cy), (rx, ry), 0, 0, 360, 1.0, -1)
+        mask = cv2.GaussianBlur(mask, (0, 0), 2.2)
+        self._mask_cache = mask
+        self._mask_key = key
         return mask
 
     def _draw_cockpit(self, frame: np.ndarray) -> None:
-        """Hull, canopy bezel, and dashboard drawn in front of the pilot."""
+        """Layered cabin: ceiling, cheek consoles, curved glass, and a foreground dash."""
         w, h = self.w, self.h
-        hull = (16, 15, 14)
+        cx, cy, rx, ry = self._canopy_geom()
+        metal = (58, 46, 34)
+        steel = (92, 78, 60)
 
-        # Side walls and ceiling — you are inside the cabin
-        cv2.rectangle(frame, (0, 0), (int(w * 0.07), h), hull, -1)
-        cv2.rectangle(frame, (int(w * 0.93), 0), (w, h), hull, -1)
-        cv2.rectangle(frame, (0, 0), (w, int(h * 0.06)), hull, -1)
+        filled_round(frame, 0, 0, w, int(h * 0.07), (32, 24, 18), 0, 1.0)
+        cv2.line(frame, (int(w * 0.08), int(h * 0.07)), (int(w * 0.92), int(h * 0.07)), CYAN, 1, cv2.LINE_AA)
+        cv2.line(frame, (w // 2, int(h * 0.07)), (w // 2, int(h * 0.12)), GOLD, 2, cv2.LINE_AA)
 
-        # Overhead rib
-        cv2.line(frame, (int(w * 0.07), int(h * 0.06)), (int(w * 0.93), int(h * 0.06)), (48, 46, 42), 6, cv2.LINE_AA)
-        cv2.line(frame, (w // 2, int(h * 0.06)), (w // 2, int(h * 0.12)), (40, 38, 36), 8, cv2.LINE_AA)
+        cheek_w = max(36, int(w * 0.055))
+        for side in (0, w - cheek_w):
+            filled_round(frame, side, int(h * 0.09), cheek_w, int(h * 0.70), metal, 12, 0.94)
+            inset = 8
+            filled_round(
+                frame, side + inset, int(h * 0.16), cheek_w - inset * 2, int(h * 0.28),
+                (28, 22, 18), 8, 1.0,
+            )
+        cv2.line(frame, (cheek_w, int(h * 0.12)), (cheek_w, int(h * 0.74)), CYAN, 1, cv2.LINE_AA)
+        cv2.line(frame, (w - cheek_w, int(h * 0.12)), (w - cheek_w, int(h * 0.74)), VIOLET, 1, cv2.LINE_AA)
+        for i, fy in enumerate((0.20, 0.26, 0.32)):
+            cv2.circle(frame, (cheek_w // 2, int(h * fy)), 3, MINT if i != 1 else GOLD, -1, cv2.LINE_AA)
+            cv2.circle(frame, (w - cheek_w // 2, int(h * fy)), 3, CYAN if i != 1 else GOLD, -1, cv2.LINE_AA)
 
-        # Thick canopy bezel around the window
-        cv2.ellipse(frame, (w // 2, int(h * 0.36)), (int(w * 0.42), int(h * 0.32)), 0, 0, 360, (28, 26, 24), 18, cv2.LINE_AA)
-        cv2.ellipse(frame, (w // 2, int(h * 0.36)), (int(w * 0.40), int(h * 0.30)), 0, 0, 360, (90, 110, 130), 2, cv2.LINE_AA)
+        outer = (rx + 18, ry + 16)
+        cv2.ellipse(frame, (cx, cy), outer, 0, 0, 360, (36, 28, 22), 18, cv2.LINE_AA)
+        cv2.ellipse(frame, (cx, cy), outer, 0, 200, 330, steel, 3, cv2.LINE_AA)
+        cv2.ellipse(frame, (cx, cy), (rx, ry), 0, 0, 360, CYAN, 2, cv2.LINE_AA)
+        cv2.ellipse(frame, (cx - rx // 6, cy - ry // 3), (rx // 3, ry // 5), -18, 205, 250, WHITE, 1, cv2.LINE_AA)
+        for deg in (205, 250, 300, 20, 150):
+            rad = math.radians(deg)
+            bx = int(cx + math.cos(rad) * outer[0])
+            by = int(cy + math.sin(rad) * outer[1])
+            cv2.circle(frame, (bx, by), 4, steel, -1, cv2.LINE_AA)
+            cv2.circle(frame, (bx, by), 4, CYAN, 1, cv2.LINE_AA)
 
-        # Dashboard in the foreground, covering the lap like a real console
-        dash = np.array([
+        lip_y = int(h * 0.82)
+        rear = np.array([
             [0, h],
             [w, h],
-            [int(w * 0.86), int(h * 0.68)],
-            [int(w * 0.14), int(h * 0.68)],
+            [int(w * 0.86), lip_y],
+            [int(w * 0.14), lip_y],
         ], np.int32)
-        cv2.fillPoly(frame, [dash], (20, 18, 16))
-        cv2.polylines(frame, [dash], True, (70, 78, 88), 1, cv2.LINE_AA)
-
-        # Seat bolsters at the lower corners
-        cv2.ellipse(frame, (int(w * 0.08), int(h * 0.78)), (int(w * 0.10), int(h * 0.16)), 0, 0, 360, (24, 22, 20), -1, cv2.LINE_AA)
-        cv2.ellipse(frame, (int(w * 0.92), int(h * 0.78)), (int(w * 0.10), int(h * 0.16)), 0, 0, 360, (24, 22, 20), -1, cv2.LINE_AA)
-
-        # A few dim instrument lights on the dash
+        cv2.fillPoly(frame, [rear], (40, 32, 24))
+        front = np.array([
+            [int(w * 0.06), h],
+            [int(w * 0.94), h],
+            [int(w * 0.80), int(h * 0.90)],
+            [int(w * 0.20), int(h * 0.90)],
+        ], np.int32)
+        cv2.fillPoly(frame, [front], (26, 20, 16))
+        cv2.polylines(frame, [rear], True, CYAN, 1, cv2.LINE_AA)
+        cv2.line(frame, (int(w * 0.22), lip_y), (int(w * 0.40), lip_y), GOLD, 2, cv2.LINE_AA)
+        cv2.line(frame, (int(w * 0.60), lip_y), (int(w * 0.78), lip_y), VIOLET, 2, cv2.LINE_AA)
         for i, fx in enumerate((0.28, 0.40, 0.60, 0.72)):
-            cx, cy = int(w * fx), int(h * 0.78)
-            col = (40, 170, 90) if i % 2 == 0 else (200, 140, 40)
-            cv2.circle(frame, (cx, cy), 5, col, -1, cv2.LINE_AA)
-            cv2.circle(frame, (cx, cy), 9, col, 1, cv2.LINE_AA)
-        cv2.putText(frame, "COCKPIT", (int(w * 0.44), int(h * 0.74)),
-                    cv2.FONT_HERSHEY_SIMPLEX, 0.4, (150, 160, 170), 1, cv2.LINE_AA)
+            lamp = MINT if i % 2 == 0 else GOLD
+            cv2.circle(frame, (int(w * fx), int(h * 0.935)), 4, lamp, -1, cv2.LINE_AA)
+            cv2.circle(frame, (int(w * fx), int(h * 0.935)), 7, lamp, 1, cv2.LINE_AA)
 
     def set_pilot(self, camera_bgr: np.ndarray, mask: Optional[np.ndarray]) -> None:
         """Live webcam figure to composite in front of the planet."""
@@ -1012,39 +1267,92 @@ class Mission:
         frame[:] = np.clip(out, 0, 255).astype(np.uint8)
 
     def _draw_world(self, frame: np.ndarray) -> None:
-        """Cabin interior, Earth through the canopy, pilot seated inside."""
+        """Cabin, space beyond the glass, then the kitchen deck in front of it."""
         w, h = self.w, self.h
-        cabin = np.full_like(frame, (18, 16, 14))
-        plate = self._viewport_plate(w, h).astype(np.float32)
-        win = self._window_mask(w, h)[:, :, None]
-        mixed = cabin.astype(np.float32) * (1.0 - win) + plate * win
-        frame[:] = np.clip(mixed, 0, 255).astype(np.uint8)
-        self._composite_pilot(frame)
-
-        # Holographic work pads floating in the viewport
-        restored = self.stage == "restored"
-        left_col = (160, 200, 230) if restored else (140, 170, 200)
-        right_col = (170, 210, 240) if restored else (150, 175, 205)
-        self._draw_ground_pad(frame, int(w * 0.24), int(h * 0.62), 130, 36, left_col)
-        self._draw_ground_pad(frame, int(w * 0.70), int(h * 0.62), 145, 38, right_col)
+        self._paint_cabin(frame)
+        self._draw_passing_space(frame)
+        self._draw_cabin_atmosphere(frame)
+        self._draw_counter(frame)
+        self._draw_workstation(frame)
+        self._draw_motes(frame)
 
         if self.bridge and self.bridge.placed:
-            bridge_ov = frame.copy()
-            cv2.ellipse(bridge_ov, (int(w * 0.46), int(h * 0.58)), (80, 14), 0, 0, 360, (180, 210, 255), -1)
-            self._blend(frame, bridge_ov, 0.45)
+            sx, sy = int(self.bridge_socket[0]), int(self.bridge_socket[1])
+            cv2.ellipse(frame, (sx, sy), (78, 12), 0, 0, 360, GOLD, -1, cv2.LINE_AA)
+            cv2.ellipse(frame, (sx, sy), (78, 12), 0, 0, 360, WHITE, 1, cv2.LINE_AA)
         elif self.stage in ("intro", "collect_ember", "cook_ember", "build"):
-            rift = frame.copy()
-            cv2.ellipse(rift, (int(w * 0.46), int(h * 0.60)), (40, 28), 0, 0, 360, (5, 4, 12), -1)
-            self._blend(frame, rift, 0.5)
+            sx, sy = int(self.bridge_socket[0]), int(self.bridge_socket[1])
+            cv2.ellipse(frame, (sx, sy), (36, 16), 0, 0, 360, (8, 6, 16), -1, cv2.LINE_AA)
+            cv2.ellipse(frame, (sx, sy), (36, 16), 0, 0, 360, VIOLET, 1, cv2.LINE_AA)
 
         if self.grove_grown:
             bx, by = int(self.barren_pos[0]), int(self.barren_pos[1])
-            self._draw_soft_shadow(frame, bx, by + 18, 50, 14, 0.3)
             for i, (dx, dy) in enumerate(((-22, 8), (0, -4), (24, 6), (-8, 16), (14, 14))):
-                self._draw_soft_glow(frame, bx + dx, by + dy - 18, 18, (55, 150, 85), 0.4)
-                cv2.circle(frame, (bx + dx, by + dy - 18), 12 + i % 3, (50, 140, 75), -1, cv2.LINE_AA)
+                cv2.circle(frame, (bx + dx, by + dy - 18), 12 + i % 3, MINT, -1, cv2.LINE_AA)
 
+        self._draw_astronaut(frame)
         self._draw_cockpit(frame)
+
+    def _paint_cabin(self, frame: np.ndarray) -> None:
+        key = (self.w, self.h)
+        plate = getattr(self, "_cabin", None)
+        if plate is None or getattr(self, "_cabin_key", None) != key:
+            yy = np.linspace(0.0, 1.0, self.h, dtype=np.float32)[:, None]
+            img = np.zeros((self.h, self.w, 3), np.float32)
+            img[:, :, 0] = 26 + 22 * (1.0 - yy)
+            img[:, :, 1] = 16 + 10 * (1.0 - yy)
+            img[:, :, 2] = 10 + 8 * yy
+            plate = np.clip(img, 0, 255).astype(np.uint8)
+            self._cabin = plate
+            self._cabin_key = key
+        frame[:] = plate
+
+    def _draw_cabin_atmosphere(self, frame: np.ndarray) -> None:
+        """Violet and cyan light falling across the deck."""
+        w, h = self.w, self.h
+        self._wash(frame, int(w * 0.18), int(h * 0.55), int(w * 0.14), int(h * 0.18), VIOLET, 0.10)
+        self._wash(frame, int(w * 0.82), int(h * 0.50), int(w * 0.12), int(h * 0.16), CYAN, 0.08)
+        self._wash(frame, int(self.bowl[0]), int(self.bowl[1]), int(self.bowl[2] + 40), int(self.bowl[3] + 20), GOLD, 0.06)
+
+    def _wash(self, frame, cx, cy, ax, ay, color, alpha: float) -> None:
+        h, w = frame.shape[:2]
+        x0, y0 = max(0, cx - ax), max(0, cy - ay)
+        x1, y1 = min(w, cx + ax), min(h, cy + ay)
+        if x1 <= x0 or y1 <= y0:
+            return
+        roi = frame[y0:y1, x0:x1]
+        layer = roi.copy()
+        cv2.ellipse(layer, (cx - x0, cy - y0), (ax, ay), 0, 0, 360, color, -1, cv2.LINE_AA)
+        cv2.addWeighted(layer, alpha, roi, 1.0 - alpha, 0, roi)
+
+    def _draw_counter(self, frame: np.ndarray) -> None:
+        """Kitchen deck beneath the observation glass."""
+        w, h = self.w, self.h
+        cx, cy = w // 2, int(h * 0.60)
+        cv2.ellipse(frame, (cx, cy), (int(w * 0.40), int(h * 0.08)), 0, 0, 360, (44, 34, 26), -1, cv2.LINE_AA)
+        cv2.ellipse(frame, (cx, cy - 4), (int(w * 0.36), int(h * 0.045)), 0, 0, 360, (70, 58, 44), 1, cv2.LINE_AA)
+        cv2.ellipse(frame, (cx, cy), (int(w * 0.40), int(h * 0.08)), 0, 200, 340, CYAN, 1, cv2.LINE_AA)
+
+    def _draw_workstation(self, frame: np.ndarray) -> None:
+        """Lit ring under the Quantum Mixer. The bowl hitbox is unchanged."""
+        cx, cy = int(self.bowl[0]), int(self.bowl[1] + self.bowl[3] * 0.55)
+        rx, ry = int(self.bowl[2] + 36), int(max(16, self.bowl[3] * 0.42))
+        cv2.ellipse(frame, (cx, cy), (rx, ry), 0, 0, 360, (18, 14, 12), -1, cv2.LINE_AA)
+        cv2.ellipse(frame, (cx, cy), (rx, ry), 0, 0, 360, CYAN, 1, cv2.LINE_AA)
+        cv2.ellipse(frame, (cx, cy), (int(rx * 0.62), int(ry * 0.62)), 0, 0, 360, GOLD, 1, cv2.LINE_AA)
+
+    def _draw_motes(self, frame: np.ndarray) -> None:
+        """Slow dust on the glass. Kept off the mixer and the HUD bands."""
+        cx, cy, rx, ry = self._canopy_geom()
+        for i in range(12):
+            swing = 0.35 + 0.55 * (((i * 37) % 100) / 100.0)
+            ang = self.anim_t * 0.15 + i * 0.9
+            px = int(cx + math.cos(ang + i) * rx * swing)
+            py = int(cy + math.sin(ang * 0.65 + i) * ry * swing)
+            if ((px - cx) / rx) ** 2 + ((py - cy) / ry) ** 2 > 0.92:
+                continue
+            col = CYAN if i % 3 == 0 else (GOLD if i % 3 == 1 else WHITE)
+            cv2.circle(frame, (px, py), 1, col, -1, cv2.LINE_AA)
 
     def _draw_ground_pad(self, frame, cx: int, cy: int, rx: int, ry: int, color: Tuple[int, int, int]) -> None:
         """Thin glass marker on the viewport — not a solid cartoon oval."""
@@ -1096,59 +1404,36 @@ class Mission:
         self._draw_soft_glow(frame, cx, cy, 55, (255, 210, 120), 0.15)
 
     def _draw_bowl(self, frame: np.ndarray) -> None:
-        cx, cy, rx, ry = int(self.bowl[0]), int(self.bowl[1]), self.bowl[2], self.bowl[3]
-        # Contact shadow + ceramic plate
-        self._draw_soft_shadow(frame, cx, cy + 36, int(rx + 18), 14, 0.35)
-        plate = frame.copy()
-        cv2.ellipse(plate, (cx, cy + 30), (int(rx + 16), 14), 0, 0, 360, (245, 245, 250), -1)
-        self._blend(frame, plate, 0.55)
-        cv2.ellipse(frame, (cx, cy + 30), (int(rx + 16), 14), 0, 0, 360, (220, 220, 230), 1, cv2.LINE_AA)
-
-        # Glass bowl body
-        body = frame.copy()
-        cv2.ellipse(body, (cx, cy + 10), (int(rx), int(ry + 16)), 0, 0, 180, (70, 65, 60), -1)
-        self._blend(frame, body, 0.55)
+        cx, cy, rx, ry = int(self.bowl[0]), int(self.bowl[1]), int(self.bowl[2]), int(self.bowl[3])
         if self.temperature == "hot":
-            rim = (50, 120, 255)
+            rim = GOLD
         elif self.temperature == "cold":
-            rim = (255, 230, 150)
+            rim = CYAN
         else:
-            rim = (220, 230, 240)
-        cv2.ellipse(frame, (cx, cy), (int(rx), int(ry)), 0, 0, 360, rim, 2, cv2.LINE_AA)
-        # Inner dark
-        inner = frame.copy()
-        cv2.ellipse(inner, (cx, cy), (int(rx - 12), int(ry - 10)), 0, 0, 360, (30, 28, 32), -1)
-        self._blend(frame, inner, 0.65)
-        # Specular highlight on rim
-        cv2.ellipse(frame, (cx - int(rx * 0.35), cy - int(ry * 0.35)), (18, 8), -30, 0, 360, (255, 255, 255), 1, cv2.LINE_AA)
-        self._draw_bokeh(frame, cx, cy - 8, 42)
-        cv2.putText(frame, "Quantum Mixer", (cx - 62, cy + int(ry) + 42),
-                    cv2.FONT_HERSHEY_SIMPLEX, 0.42, (230, 235, 245), 1, cv2.LINE_AA)
-
-    def _draw_cook_hud(self, frame: np.ndarray) -> None:
-        self._draw_holo_panel(frame, 8, 90, 300, 72)
-        temp = self.temperature.upper()
-        cv2.putText(frame, f"TEMP  {temp}", (22, 116), cv2.FONT_HERSHEY_SIMPLEX, 0.48,
-                    (60, 120, 255) if self.temperature == "hot" else (
-                        (255, 220, 120) if self.temperature == "cold" else (210, 220, 230)), 1, cv2.LINE_AA)
-        label = "STIRRING" if self.stirring else "STIR"
-        cv2.putText(frame, label, (22, 144), cv2.FONT_HERSHEY_SIMPLEX, 0.42,
-                    (80, 255, 160) if self.stirring else (170, 180, 190), 1, cv2.LINE_AA)
-        cv2.rectangle(frame, (100, 132), (280, 146), (50, 50, 55), -1)
-        cv2.rectangle(frame, (100, 132), (100 + int(180 * self.stir), 146), (140, 210, 255), -1)
+            rim = WHITE
+        spin = self.anim_t * 12
+        # Pedestal and two slow holographic rings. The inner ellipse is the real bowl target.
+        cv2.ellipse(frame, (cx, cy + ry + 18), (rx + 10, 12), 0, 0, 360, (18, 14, 12), -1, cv2.LINE_AA)
+        cv2.ellipse(frame, (cx, cy + ry + 8), (rx + 18, 16), spin, 0, 360, CYAN, 1, cv2.LINE_AA)
+        cv2.ellipse(frame, (cx, cy + 8), (rx + 8, ry + 10), -spin, 0, 360, VIOLET, 1, cv2.LINE_AA)
+        cv2.ellipse(frame, (cx, cy + 6), (rx, ry + 8), 0, 0, 180, (48, 40, 32), -1, cv2.LINE_AA)
+        cv2.ellipse(frame, (cx, cy), (rx, ry), 0, 0, 360, rim, 2, cv2.LINE_AA)
+        cv2.ellipse(frame, (cx, cy), (max(8, rx - 16), max(6, ry - 12)), 0, 0, 360, (36, 28, 22), -1, cv2.LINE_AA)
+        cv2.ellipse(frame, (cx - rx // 3, cy - ry // 3), (14, 5), -28, 0, 360, WHITE, 1, cv2.LINE_AA)
+        label_y = min(self.h - 70, cy + ry + 54)
+        cv2.putText(frame, "QUANTUM MIXER", (cx - 68, label_y),
+                    cv2.FONT_HERSHEY_SIMPLEX, 0.4, rim, 1, cv2.LINE_AA)
 
     def _draw_item(self, frame: np.ndarray, item: Item) -> None:
         cx, cy = int(item.x), int(item.y)
-        float_y = cy + int(3 * math.sin(self.anim_t * 2.4 + cx * 0.01))
-        # Soft plate + shadow like the AR food plates
-        self._draw_soft_shadow(frame, cx, float_y + 40, 36, 10, 0.32)
-        plate = frame.copy()
-        cv2.ellipse(plate, (cx, float_y + 30), (36, 11), 0, 0, 360, (250, 250, 255), -1)
-        self._blend(frame, plate, 0.5)
-        cv2.ellipse(frame, (cx, float_y + 30), (36, 11), 0, 0, 360, (210, 210, 220), 1, cv2.LINE_AA)
-        self._draw_bokeh(frame, cx, float_y, 32)
+        float_y = cy + int(4 * math.sin(self.anim_t * 1.6 + cx * 0.01))
+        cv2.line(frame, (cx, float_y + 8), (cx, float_y + 28), CYAN, 1, cv2.LINE_AA)
+        cv2.ellipse(frame, (cx, float_y + 30), (34, 10), 0, 0, 360, (14, 12, 10), -1, cv2.LINE_AA)
+        cv2.ellipse(frame, (cx, float_y + 30), (34, 10), 0, 0, 360, CYAN, 1, cv2.LINE_AA)
+        cv2.ellipse(frame, (cx, float_y + 30), (20, 5), 0, 0, 360, VIOLET, 1, cv2.LINE_AA)
+        cv2.ellipse(frame, (cx - 8, float_y + 28), (10, 3), 0, 0, 360, WHITE, 1, cv2.LINE_AA)
 
-        glow = (80, 255, 160) if item.held else ((0, 220, 255) if item.near else (210, 220, 230))
+        glow = MINT if item.held else (CYAN if item.near else WHITE)
         if item.near or item.held:
             cv2.circle(frame, (cx, float_y), GRAB, glow, 1, cv2.LINE_AA)
 
@@ -1167,19 +1452,20 @@ class Mission:
             shade = tuple(max(0, c - 50) for c in item.color)
             cv2.ellipse(frame, (cx + 4, float_y + 6), (item.radius - 4, item.radius - 6), 0, 0, 360, shade, -1, cv2.LINE_AA)
             cv2.circle(frame, (cx - 8, float_y - 8), max(4, item.radius // 4), (245, 245, 255), -1, cv2.LINE_AA)
-        cv2.putText(frame, "HOLD" if item.held else item.name, (cx - 42, float_y + 55),
+        label = "HOLD" if item.held else item.name
+        cv2.putText(frame, label, (max(8, cx - 46), min(self.h - 64, float_y + 52)),
                     cv2.FONT_HERSHEY_SIMPLEX, 0.38, glow, 1, cv2.LINE_AA)
 
     def _draw_bridge_piece(self, frame: np.ndarray, b: BridgePiece) -> None:
         cx, cy = int(b.x), int(b.y)
-        glow = (80, 255, 160) if b.held else ((0, 220, 255) if b.near else (200, 220, 255))
+        glow = MINT if b.held else (CYAN if b.near else GOLD)
         if (b.near or b.held) and not b.placed:
-            cv2.circle(frame, (cx, cy), GRAB, glow, 1)
-        self._draw_soft_glow(frame, cx, cy, 55, (255, 200, 100), 0.22)
-        cv2.rectangle(frame, (cx - 48, cy - 14), (cx + 48, cy + 14), (100, 170, 255), -1)
-        cv2.rectangle(frame, (cx - 48, cy - 14), (cx + 48, cy + 14), (255, 255, 200), 2)
+            cv2.circle(frame, (cx, cy), GRAB, glow, 1, cv2.LINE_AA)
+        self._draw_soft_glow(frame, cx, cy, 55, GOLD, 0.18)
+        filled_round(frame, cx - 52, cy - 16, 104, 32, (90, 140, 210), 14, 0.92)
+        cv2.line(frame, (cx - 36, cy), (cx + 36, cy), WHITE, 1, cv2.LINE_AA)
         for i in range(-1, 2):
-            cv2.line(frame, (cx + i * 24, cy - 14), (cx + i * 24, cy + 14), (60, 100, 180), 2)
+            cv2.line(frame, (cx + i * 24, cy - 12), (cx + i * 24, cy + 12), (40, 70, 120), 1, cv2.LINE_AA)
         if not b.placed:
             cv2.putText(frame, "Cookie Bridge", (cx - 52, cy + 38),
                         cv2.FONT_HERSHEY_SIMPLEX, 0.42, glow, 1, cv2.LINE_AA)
@@ -1200,23 +1486,21 @@ class Mission:
             self._draw_soft_glow(frame, x, y, 70, (80, 200, 255) if not green else (60, 200, 100), 0.28)
             self._draw_sparkles(frame, x, y, 55)
             done = "MELTED" if not green and not cold else ("GROWN" if green else "FROZEN")
-            cv2.putText(frame, done, (x - 40, y), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (40, 120, 255), 2, cv2.LINE_AA)
+            cv2.putText(frame, done, (x - 40, y), cv2.FONT_HERSHEY_SIMPLEX, 0.55, WHITE, 1, cv2.LINE_AA)
             return
 
-        pulse = 0.5 + 0.5 * math.sin(self.anim_t * 3)
+        pulse = 0.5 + 0.5 * math.sin(self.anim_t * 2.2)
         if cold:
-            fill, border = (210, 170, 70), (255, 200, 120)
+            fill, edge = (120, 90, 40), CYAN
         elif green:
-            fill, border = (55, 85, 40), (90, 180, 110)
+            fill, edge = (40, 70, 36), MINT
         else:
-            fill, border = (220, 210, 175), (230, 200, 140)
+            fill, edge = (90, 78, 48), WHITE
 
         self._draw_soft_shadow(frame, x, y + 28, 70, 16, 0.3)
-        block = frame.copy()
-        cv2.rectangle(block, (x - 60, y - 36), (x + 60, y + 28), fill, -1, cv2.LINE_AA)
-        self._blend(frame, block, 0.55)
-        cv2.rectangle(frame, (x - 60, y - 36), (x + 60, y + 28), border, 2, cv2.LINE_AA)
-        cv2.putText(frame, label, (x - 50, y - 2), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (40, 50, 60), 1, cv2.LINE_AA)
+        filled_round(frame, x - 64, y - 36, 128, 68, fill, 18, 0.72)
+        cv2.line(frame, (x - 40, y - 36), (x + 40, y - 36), edge, 1, cv2.LINE_AA)
+        cv2.putText(frame, label, (x - 50, y - 2), cv2.FONT_HERSHEY_SIMPLEX, 0.45, WHITE, 1, cv2.LINE_AA)
 
         if active:
             pad_y = y + 48
@@ -1225,7 +1509,7 @@ class Mission:
             self._draw_soft_glow(frame, x, pad_y, pad_r + 10, (255, 255, 255), 0.2)
             cv2.ellipse(frame, (x, pad_y), (pad_r, int(pad_r * 0.36)), 0, 0, 360, (245, 245, 255), 2, cv2.LINE_AA)
             tip = "DROP HERE" if carrying else "LEAVE HERE"
-            cv2.putText(frame, tip, (x - 48, pad_y + 32), cv2.FONT_HERSHEY_SIMPLEX, 0.45, (245, 245, 250), 1, cv2.LINE_AA)
+            cv2.putText(frame, tip, (x - 48, pad_y + 32), cv2.FONT_HERSHEY_SIMPLEX, 0.42, GOLD, 1, cv2.LINE_AA)
 
     def _draw_buddy(self, frame: np.ndarray, buddy: Buddy, active: bool) -> None:
         ex, ey = int(buddy.x), int(buddy.y)
@@ -1237,25 +1521,25 @@ class Mission:
             return
         if active and buddy.following:
             cv2.putText(frame, "CARRYING", (ex - 40, ey + 78),
-                        cv2.FONT_HERSHEY_SIMPLEX, 0.45, (80, 255, 160), 1, cv2.LINE_AA)
+                        cv2.FONT_HERSHEY_SIMPLEX, 0.42, MINT, 1, cv2.LINE_AA)
         elif active:
-            glow = (0, 220, 255) if buddy.near else (200, 210, 230)
-            cv2.circle(frame, (ex, ey), GRAB + 18, glow, 2)
+            glow = CYAN if buddy.near else WHITE
+            cv2.circle(frame, (ex, ey), GRAB + 18, glow, 1, cv2.LINE_AA)
             cv2.putText(frame, "PINCH", (ex - 28, ey + 78),
-                        cv2.FONT_HERSHEY_SIMPLEX, 0.45, glow, 1, cv2.LINE_AA)
+                        cv2.FONT_HERSHEY_SIMPLEX, 0.42, glow, 1, cv2.LINE_AA)
         else:
             cv2.putText(frame, "WAITING", (ex - 35, ey + 78),
-                        cv2.FONT_HERSHEY_SIMPLEX, 0.4, (180, 200, 220), 1, cv2.LINE_AA)
+                        cv2.FONT_HERSHEY_SIMPLEX, 0.4, WHITE, 1, cv2.LINE_AA)
 
     def _draw_citizens(self, frame: np.ndarray) -> None:
         for i, xf in enumerate((0.18, 0.28, 0.40, 0.58, 0.70, 0.82)):
             cx = int(self.w * xf)
-            cy = int(self.h * 0.56 - 5 * abs(math.sin(self.anim_t * 5 + i)))
-            cv2.circle(frame, (cx, cy), 9, (100, 180, 255), -1)
-            cv2.circle(frame, (cx - 2, cy - 1), 2, (20, 20, 30), -1)
-            cv2.circle(frame, (cx + 3, cy - 1), 2, (20, 20, 30), -1)
-        cv2.putText(frame, "Cookie citizens celebrate!", (int(self.w * 0.32), int(self.h * 0.46)),
-                    cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255, 230, 150), 2, cv2.LINE_AA)
+            cy = int(self.h * 0.66 - 5 * abs(math.sin(self.anim_t * 5 + i)))
+            cv2.circle(frame, (cx, cy), 9, GOLD if i % 2 == 0 else CYAN, -1, cv2.LINE_AA)
+            cv2.circle(frame, (cx - 2, cy - 1), 2, NAVY, -1)
+            cv2.circle(frame, (cx + 3, cy - 1), 2, NAVY, -1)
+        cv2.putText(frame, "Cookie citizens celebrate", (int(self.w * 0.34), int(self.h * 0.40)),
+                    cv2.FONT_HERSHEY_SIMPLEX, 0.5, GOLD, 1, cv2.LINE_AA)
 
 
 def run(camera_index: int = 0) -> None:
@@ -1319,7 +1603,7 @@ def run(camera_index: int = 0) -> None:
             mission.keyboard_stir = _key_held(VK_S)
             mission.update(state, dt)
             mission.draw(frame)
-            draw_overlay(frame, state, landmark_list, connections)
+            draw_overlay(frame, state, landmark_list, connections, show_status=False)
             cv2.imshow(window, frame)
 
             key = cv2.waitKey(1) & 0xFF

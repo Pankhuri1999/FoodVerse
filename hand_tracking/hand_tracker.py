@@ -101,8 +101,14 @@ def compute_hand_state(landmarks, handedness_score: float = 1.0) -> HandState:
     )
 
 
-def draw_overlay(frame: np.ndarray, state: HandState, landmarks, connections) -> None:
-    """Draw landmarks, pinch status, and HUD text on the camera frame."""
+def draw_overlay(
+    frame: np.ndarray,
+    state: HandState,
+    landmarks,
+    connections,
+    show_status: bool = True,
+) -> None:
+    """Draw landmarks and, unless a mission supplies its own HUD, pinch status."""
     h, w = frame.shape[:2]
 
     if state.detected and landmarks is not None:
@@ -119,36 +125,45 @@ def draw_overlay(frame: np.ndarray, state: HandState, landmarks, connections) ->
         index = landmarks.landmark[INDEX_TIP]
         pt1 = (int(thumb.x * w), int(thumb.y * h))
         pt2 = (int(index.x * w), int(index.y * h))
-        color = (0, 220, 120) if state.is_pinching else (80, 80, 255)
+        color = (177, 230, 113) if state.is_pinching else (255, 223, 66)
         cv2.line(frame, pt1, pt2, color, 2)
         cv2.circle(frame, pt1, 8, color, -1)
         cv2.circle(frame, pt2, 8, color, -1)
 
         # Yellow reticle = grab point (pinch midpoint).
         cursor = (int(state.x * w), int(state.y * h))
-        cv2.circle(frame, cursor, 16, (255, 200, 50), 2)
-        cv2.drawMarker(frame, cursor, (255, 200, 50), cv2.MARKER_CROSS, 12, 2)
+        cv2.circle(frame, cursor, 16, (109, 198, 255), 2)
+        cv2.drawMarker(frame, cursor, (109, 198, 255), cv2.MARKER_CROSS, 12, 2)
 
-    status = "PINCH / GRAB" if state.is_pinching else "OPEN"
-    status_color = (0, 220, 120) if state.is_pinching else (200, 200, 200)
-    detect_text = "Hand: YES" if state.detected else "Hand: NO"
-    detect_color = (0, 220, 120) if state.detected else (80, 80, 255)
+    if not show_status:
+        return
 
-    cv2.rectangle(frame, (8, 8), (360, 118), (20, 20, 30), -1)
-    cv2.putText(frame, "FOODIVERSE — Hand Tracker", (16, 32),
-                cv2.FONT_HERSHEY_SIMPLEX, 0.55, (255, 220, 120), 1, cv2.LINE_AA)
-    cv2.putText(frame, detect_text, (16, 58),
-                cv2.FONT_HERSHEY_SIMPLEX, 0.55, detect_color, 1, cv2.LINE_AA)
-    cv2.putText(frame, f"Gesture: {status}", (16, 82),
-                cv2.FONT_HERSHEY_SIMPLEX, 0.55, status_color, 1, cv2.LINE_AA)
+    from visual_theme import CYAN, GOLD, MINT, WHITE, round_panel
+
+    if not state.detected:
+        status, status_color = "NONE", (140, 150, 170)
+    elif state.is_pinching:
+        status, status_color = "PINCH", MINT
+    else:
+        status, status_color = "OPEN", WHITE
+    detect_text = "Hand  YES" if state.detected else "Hand  NO"
+    detect_color = MINT if state.detected else (80, 80, 255)
+
+    round_panel(frame, 8, 8, 340, 100, 14)
+    cv2.putText(frame, "FOODIVERSE  |  Hand Tracker", (22, 34),
+                cv2.FONT_HERSHEY_SIMPLEX, 0.5, GOLD, 1, cv2.LINE_AA)
+    cv2.putText(frame, detect_text, (22, 58),
+                cv2.FONT_HERSHEY_SIMPLEX, 0.5, detect_color, 1, cv2.LINE_AA)
+    cv2.putText(frame, f"Gesture  {status}", (22, 82),
+                cv2.FONT_HERSHEY_SIMPLEX, 0.5, status_color, 1, cv2.LINE_AA)
 
     if state.detected:
         coords = f"x={state.x:.2f}  y={state.y:.2f}  z={state.z:.2f}  pinch={state.pinch_distance:.2f}"
-        cv2.putText(frame, coords, (16, 106),
-                    cv2.FONT_HERSHEY_SIMPLEX, 0.45, (180, 180, 200), 1, cv2.LINE_AA)
+        cv2.putText(frame, coords, (22, 100),
+                    cv2.FONT_HERSHEY_SIMPLEX, 0.4, CYAN, 1, cv2.LINE_AA)
 
-    cv2.putText(frame, "q quit | s snapshot", (16, h - 16),
-                cv2.FONT_HERSHEY_SIMPLEX, 0.45, (140, 140, 160), 1, cv2.LINE_AA)
+    cv2.putText(frame, "q quit  |  s snapshot", (16, h - 16),
+                cv2.FONT_HERSHEY_SIMPLEX, 0.45, WHITE, 1, cv2.LINE_AA)
 
 
 def run(camera_index: int = 0) -> None:
