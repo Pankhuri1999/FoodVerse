@@ -1,0 +1,149 @@
+<style>
+  .panel-root {
+    flex-direction: column;
+    width: 380px;
+  }
+
+  .panel-content {
+    flex-direction: column;
+    gap: 5px;
+    padding-top: 14px;
+    padding-right: 16px;
+    padding-bottom: 8px;
+    padding-left: 16px;
+  }
+
+  .eyebrow {
+    color: #6b5a00;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1.2px;
+  }
+
+  .eyebrow:dark {
+    color: #e8c35a;
+  }
+
+  .heading {
+    color: #1c1d20;
+    font-size: 20px;
+    font-weight: 700;
+    line-height: 1.2;
+  }
+
+  .heading:dark {
+    color: #f4f1ea;
+  }
+
+  .tagline {
+    color: #3a3b40;
+    font-size: 12px;
+    line-height: 1.3;
+  }
+
+  .tagline:dark {
+    color: #c5cad3;
+  }
+
+  .rule {
+    height: 2px;
+    width: 100%;
+    background-color: #3aa8c4;
+    margin-top: 3px;
+    margin-bottom: 3px;
+  }
+
+  .row {
+    color: #3a3b40;
+    font-size: 12px;
+    line-height: 1.3;
+  }
+
+  .row:dark {
+    color: #d2d6de;
+  }
+
+  .button {
+    justify-content: flex-start;
+    margin-left: 16px;
+    margin-right: 16px;
+    margin-bottom: 8px;
+  }
+</style>
+<Panel class="panel-root">
+  <div class="panel-content">
+    <div class="eyebrow">MISSION</div>
+    <div class="heading">FOODIVERSE: Cosmic Kitchen</div>
+    <div class="tagline">Space affects cooking. Cooking creates life. Life transforms worlds.</div>
+    <div class="rule"></div>
+    <div id="stage-title" class="row">STAGE 1/10 - Collect Ember Spark</div>
+    <div id="objective" class="row">Pinch Cosmic Fruit and Star-Pepper into the Quantum Mixer.</div>
+    <div id="kingdom-status" class="row">Ice Gate frozen | soil barren | water open | cookie bridge needed | Central Kingdom waiting</div>
+    <div id="archive-status" class="row">Archive: Ember locked, Grove locked, Mint locked | wafer needed, leaves needed, chocolate needed</div>
+    <div id="gravity-status" class="row">Seated. Gravity is normal. Viewpoint never rolls.</div>
+    <div class="rule"></div>
+    <div id="pause-status" class="row">Seated. No walking. No camera shake. Look with your head.</div>
+    <div id="tutorial-text" class="row">Hint 1/6: Seated play. Everything is within arm reach. You do not walk.</div>
+    <div id="comfort-status" class="row">Seated | pinch default | reach arm | vol 70% | motion on</div>
+    <div id="pinch-status" class="row">Pinch L 0%  R 0%  commit 61%</div>
+    <div class="rule"></div>
+    <div id="input-mode" class="row">Desktop mouse/pointer. Not WebXR hands. Enter XR, then use Quest hands or IWER emulated hands.</div>
+    <div id="mixer-status" class="row">Mixer empty. Place Cosmic Fruit and Star-Pepper in the bowl.</div>
+    <div id="temp-status" class="row">Temperature: idle</div>
+    <div id="stir-progress" class="row">Stir: 0% (need 45%)</div>
+  </div>
+  <Button id="heat-button" class="button">
+    <ButtonLabel>Heat</ButtonLabel>
+  </Button>
+  <Button id="cool-button" class="button">
+    <ButtonLabel>Cool</ButtonLabel>
+  </Button>
+  <Button id="stabilize-button" class="button">
+    <ButtonLabel>Stabilizer</ButtonLabel>
+  </Button>
+  <Button id="pause-button" class="button">
+    <ButtonLabel>Pause / Resume</ButtonLabel>
+  </Button>
+  <Button id="tutorial-button" class="button">
+    <ButtonLabel>Replay tutorial</ButtonLabel>
+  </Button>
+  <Button id="tutorial-next-button" class="button">
+    <ButtonLabel>Next hint</ButtonLabel>
+  </Button>
+  <Button id="pinch-easier-button" class="button">
+    <ButtonLabel>Pinch easier</ButtonLabel>
+  </Button>
+  <Button id="pinch-firmer-button" class="button">
+    <ButtonLabel>Pinch firmer</ButtonLabel>
+  </Button>
+  <Button id="reach-minus-button" class="button">
+    <ButtonLabel>Reach nearer</ButtonLabel>
+  </Button>
+  <Button id="reach-plus-button" class="button">
+    <ButtonLabel>Reach farther</ButtonLabel>
+  </Button>
+  <Button id="volume-minus-button" class="button">
+    <ButtonLabel>Volume down</ButtonLabel>
+  </Button>
+  <Button id="volume-plus-button" class="button">
+    <ButtonLabel>Volume up</ButtonLabel>
+  </Button>
+  <Button id="motion-button" class="button">
+    <ButtonLabel>Reduced motion</ButtonLabel>
+  </Button>
+  <Button id="restart-button" class="button">
+    <ButtonLabel>Restart mission</ButtonLabel>
+  </Button>
+  <Button id="xr-button" class="button">
+    <ButtonIcon>
+      <RectangleGoggles></RectangleGoggles>
+    </ButtonIcon>
+    <ButtonLabel>Enter XR</ButtonLabel>
+  </Button>
+  <Button id="exit-button" class="button" style="display: none">
+    <ButtonIcon>
+      <LogIn></LogIn>
+    </ButtonIcon>
+    <ButtonLabel>Return to desk</ButtonLabel>
+  </Button>
+</Panel>

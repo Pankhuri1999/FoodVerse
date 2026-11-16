@@ -1,0 +1,82 @@
+<style>
+  .panel-root {
+    flex-direction: column;
+    width: 360px;
+  }
+
+  .panel-content {
+    flex-direction: column;
+    gap: 6px;
+    padding-top: 16px;
+    padding-right: 16px;
+    padding-bottom: 12px;
+    padding-left: 16px;
+  }
+
+  .eyebrow {
+    color: #6b5a00;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1.2px;
+  }
+
+  .eyebrow:dark {
+    color: #e8c35a;
+  }
+
+  .heading {
+    color: #1c1d20;
+    font-size: 22px;
+    font-weight: 700;
+    line-height: 1.2;
+  }
+
+  .heading:dark {
+    color: #f4f1ea;
+  }
+
+  .row {
+    color: #3a3b40;
+    font-size: 13px;
+    line-height: 1.35;
+  }
+
+  .row:dark {
+    color: #d2d6de;
+  }
+
+  .rule {
+    height: 2px;
+    width: 100%;
+    background-color: #3aa8c4;
+    margin-top: 4px;
+    margin-bottom: 4px;
+  }
+
+  .button {
+    justify-content: flex-start;
+    margin-left: 16px;
+    margin-right: 16px;
+    margin-bottom: 8px;
+  }
+</style>
+<Panel class="panel-root">
+  <div class="panel-content">
+    <div class="eyebrow">HOW TO COOK</div>
+    <div class="heading">FOODIVERSE kitchen</div>
+    <div id="guide-hands" class="row">IWER is on CONTROLLERS now. In the top IWER bar, switch input to Hands. Look DOWN at the cyan mixer table. Six glowing foods sit there. Webcam is not used.</div>
+    <div class="rule"></div>
+    <div id="guide-recipe" class="row">Ember Spark: Cosmic Fruit + Star-Pepper. Needs HEAT.</div>
+    <div id="guide-step-1" class="row">1. Look at the table around the cyan bowl. Pinch (or controller Trigger) the orange fruit and star pepper. Drop both in the bowl.</div>
+    <div id="guide-step-2" class="row">2. Press Heat on the left panel, press H, or poke the orange knob.</div>
+    <div id="guide-step-3" class="row">3. Stir to 45%: press S, or wave an OPEN hand over the bowl.</div>
+    <div id="guide-step-4" class="row">4. Grab Ember Dragon. Release it on Ice Gate. Snap the cookie wafer onto Cookie Bridge.</div>
+    <div id="guide-archive" class="row">Archive: Ember locked, Grove locked, Mint locked</div>
+  </div>
+  <Button id="guide-xr-button" class="button">
+    <ButtonIcon>
+      <RectangleGoggles></RectangleGoggles>
+    </ButtonIcon>
+    <ButtonLabel>Enter XR - show hands</ButtonLabel>
+  </Button>
+</Panel>

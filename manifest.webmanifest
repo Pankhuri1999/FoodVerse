@@ -1,0 +1,31 @@
+{
+  "name": "FOODIVERSE: Cosmic Kitchen",
+  "short_name": "FOODIVERSE",
+  "description": "Seated WebXR kitchen. Cook three recipes, hatch three creatures, restore the Cookie Kingdom.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "landscape",
+  "background_color": "#0c1016",
+  "theme_color": "#0c1016",
+  "icons": [
+    {
+      "src": "./icons/icon-192.png",
+      "type": "image/png",
+      "sizes": "192x192",
+      "purpose": "any"
+    },
+    {
+      "src": "./icons/icon-512.png",
+      "type": "image/png",
+      "sizes": "512x512",
+      "purpose": "any"
+    },
+    {
+      "src": "./icons/icon-512-maskable.png",
+      "type": "image/png",
+      "sizes": "512x512",
+      "purpose": "maskable"
+    }
+  ]
+}

@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, shrink-to-fit=no"
+    />
+    <meta name="theme-color" content="#0c1016" />
+    <meta name="color-scheme" content="dark" />
+    <link rel="manifest" href="./manifest.webmanifest" />
+    <link rel="icon" href="./icons/icon-192.png" />
+    <title>FOODIVERSE: Cosmic Kitchen</title>
+    <style>
+      html,
+      body,
+      #scene-container {
+        margin: 0;
+        height: 100%;
+        background: #0c1016;
+      }
+      #desk-hud {
+        position: fixed;
+        left: 16px;
+        top: 16px;
+        width: min(420px, calc(100vw - 32px));
+        z-index: 20;
+        font-family: Segoe UI, sans-serif;
+        color: #f4f1ea;
+        background: rgba(12, 16, 22, 0.88);
+        border: 1px solid #3aa8c4;
+        border-radius: 12px;
+        padding: 16px 18px 14px;
+        pointer-events: none;
+      }
+      #desk-hud h1 {
+        margin: 0 0 8px;
+        font-size: 22px;
+      }
+      #desk-hud p,
+      #desk-hud li {
+        margin: 0 0 8px;
+        font-size: 14px;
+        line-height: 1.4;
+      }
+      #desk-hud ol {
+        margin: 0 0 10px;
+        padding-left: 1.2em;
+      }
+      #desk-hud button {
+        pointer-events: auto;
+        cursor: pointer;
+        border: 0;
+        border-radius: 8px;
+        padding: 10px 14px;
+        font-size: 15px;
+        font-weight: 700;
+        color: #0c1016;
+        background: #3ec8e0;
+      }
+      #desk-recipe {
+        color: #e8c35a;
+        font-weight: 700;
+      }
+    </style>
+    <script type="module" crossorigin src="./assets/index-CJUXMFZx.js"></script>
+  </head>
+  <body>
+    <div id="scene-container"></div>
+    <aside id="desk-hud">
+      <h1>How to cook</h1>
+      <p id="desk-hands">
+        Hands appear AFTER Enter XR. Webcam is not used. Desktop uses IWER
+        emulated Quest hands. On a headset, look at your hands after VR starts.
+      </p>
+      <p id="desk-recipe">Ember Spark: Cosmic Fruit + Star-Pepper. Needs HEAT.</p>
+      <ol id="desk-steps">
+        <li>Grab Cosmic Fruit and Star-Pepper. Drop both in the mixer bowl.</li>
+        <li>Press H or poke the orange heat knob.</li>
+        <li>Stir to 45% (S on desktop, open hand in XR).</li>
+        <li>Grab Ember Dragon. Release it on Ice Gate.</li>
+      </ol>
+      <p id="desk-archive">Archive: Ember locked, Grove locked, Mint locked</p>
+      <button id="desk-enter-xr" type="button">Enter XR - show hands</button>
+    </aside>
+  </body>
+</html>
