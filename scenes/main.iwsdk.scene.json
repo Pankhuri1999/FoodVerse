@@ -3,17 +3,17 @@
   "units": "meters",
   "components": {
     "com.iwsdk.components.DomeGradient": {
-      "sky": [0.12, 0.08, 0.22, 1],
-      "equator": [0.55, 0.28, 0.14, 1],
-      "ground": [0.04, 0.03, 0.05, 1],
-      "intensity": 1.28,
+      "sky": [0.01, 0.012, 0.02, 1],
+      "equator": [0.02, 0.022, 0.03, 1],
+      "ground": [0.004, 0.004, 0.006, 1],
+      "intensity": 0.32,
       "dither": true
     },
     "com.iwsdk.components.IBLGradient": {
-      "sky": [0.42, 0.32, 0.55, 1],
-      "equator": [0.42, 0.26, 0.16, 1],
-      "ground": [0.08, 0.07, 0.06, 1],
-      "intensity": 0.88
+      "sky": [0.06, 0.08, 0.14, 1],
+      "equator": [0.16, 0.12, 0.08, 1],
+      "ground": [0.04, 0.04, 0.05, 1],
+      "intensity": 0.38
     }
   },
   "environment": {
@@ -551,9 +551,9 @@
       "name": "Cabin Hemisphere",
       "components": {
         "com.iwsdk.components.HemisphereLight": {
-          "skyColor": [0.52, 0.62, 0.82, 1],
-          "groundColor": [0.14, 0.12, 0.1, 1],
-          "intensity": 0.48
+          "skyColor": [0.1, 0.14, 0.22, 1],
+          "groundColor": [0.08, 0.07, 0.06, 1],
+          "intensity": 0.22
         }
       }
     }
