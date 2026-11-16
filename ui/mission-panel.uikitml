@@ -80,7 +80,7 @@
     <div id="objective" class="row">Pinch Cosmic Fruit and Star-Pepper into the Quantum Mixer.</div>
     <div id="kingdom-status" class="row">Ice Gate frozen | soil barren | water open | cookie bridge needed | Central Kingdom waiting</div>
     <div id="archive-status" class="row">Archive: Ember locked, Grove locked, Mint locked | wafer needed, leaves needed, chocolate needed</div>
-    <div id="gravity-status" class="row">Seated. Gravity is normal. Viewpoint never rolls.</div>
+    <div id="gravity-status" class="row">Seated. Asteroids can tilt the ship. Catch loose food. G = Stabilizer.</div>
     <div class="rule"></div>
     <div id="pause-status" class="row">Seated. No walking. No camera shake. Look with your head.</div>
     <div id="tutorial-text" class="row">Hint 1/6: Seated play. Everything is within arm reach. You do not walk.</div>
