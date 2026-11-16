@@ -23,65 +23,159 @@
         position: fixed;
         left: 16px;
         top: 16px;
-        width: min(420px, calc(100vw - 32px));
         z-index: 20;
+        width: auto;
+        max-width: min(380px, calc(100vw - 32px));
         font-family: Segoe UI, sans-serif;
         color: #f4f1ea;
-        background: rgba(12, 16, 22, 0.88);
-        border: 1px solid #3aa8c4;
-        border-radius: 12px;
-        padding: 16px 18px 14px;
+        background: transparent;
+        border: 0;
+        padding: 0;
         pointer-events: none;
       }
-      #desk-hud h1 {
-        margin: 0 0 8px;
-        font-size: 22px;
+      .desk-dock,
+      .desk-panel {
+        pointer-events: auto;
       }
-      #desk-hud p,
-      #desk-hud li {
+      .desk-dock {
+        display: flex;
+        gap: 8px;
+      }
+      .desk-fab {
+        width: 44px;
+        height: 44px;
+        border: 1px solid #3aa8c4;
+        border-radius: 12px;
+        padding: 0;
+        display: grid;
+        place-items: center;
+        cursor: pointer;
+        color: #e8f7fb;
+        background: rgba(12, 16, 22, 0.82);
+      }
+      .desk-fab svg {
+        width: 22px;
+        height: 22px;
+        fill: none;
+        stroke: currentColor;
+        stroke-width: 1.8;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+      }
+      .desk-fab[aria-expanded='true'] {
+        border-color: #e8c35a;
+        color: #e8c35a;
+      }
+      #desk-enter-xr {
+        color: #0c1016;
+        background: #3ec8e0;
+        border-color: #3ec8e0;
+      }
+      .desk-panel {
+        display: none;
+        margin-top: 10px;
+        background: rgba(12, 16, 22, 0.92);
+        border: 1px solid #3aa8c4;
+        border-radius: 12px;
+        padding: 14px 16px 12px;
+      }
+      .desk-panel.is-open {
+        display: block;
+      }
+      .desk-panel h2 {
+        margin: 0 0 8px;
+        font-size: 16px;
+      }
+      .desk-panel p,
+      .desk-panel li {
         margin: 0 0 8px;
         font-size: 14px;
         line-height: 1.4;
       }
-      #desk-hud ol {
-        margin: 0 0 10px;
+      .desk-panel ol {
+        margin: 0 0 4px;
         padding-left: 1.2em;
-      }
-      #desk-hud button {
-        pointer-events: auto;
-        cursor: pointer;
-        border: 0;
-        border-radius: 8px;
-        padding: 10px 14px;
-        font-size: 15px;
-        font-weight: 700;
-        color: #0c1016;
-        background: #3ec8e0;
       }
       #desk-recipe {
         color: #e8c35a;
         font-weight: 700;
       }
     </style>
-    <script type="module" crossorigin src="./assets/index-CJUXMFZx.js"></script>
+    <script type="module" crossorigin src="./assets/index-BtrXDfVu.js"></script>
   </head>
   <body>
     <div id="scene-container"></div>
     <aside id="desk-hud">
-      <h1>How to cook</h1>
-      <p id="desk-hands">
-        Hands appear AFTER Enter XR. Webcam is not used. Desktop uses IWER
-        emulated Quest hands. On a headset, look at your hands after VR starts.
-      </p>
-      <p id="desk-recipe">Ember Spark: Cosmic Fruit + Star-Pepper. Needs HEAT.</p>
-      <ol id="desk-steps">
-        <li>Grab Cosmic Fruit and Star-Pepper. Drop both in the mixer bowl.</li>
-        <li>Press H or poke the orange heat knob.</li>
-        <li>Stir to 45% (S on desktop, open hand in XR).</li>
-        <li>Grab Ember Dragon. Release it on Ice Gate.</li>
-      </ol>
-      <p id="desk-archive">Archive: Ember locked, Grove locked, Mint locked</p>
-      <button id="desk-enter-xr" type="button">Enter XR - show hands</button>
+      <nav class="desk-dock" aria-label="Kitchen info">
+        <button id="desk-enter-xr" class="desk-fab" type="button" title="Enter XR">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M3 9.5h18v7.5a2 2 0 0 1-2 2h-4l-1.5-2h-3L9 19H5a2 2 0 0 1-2-2z" />
+            <path d="M7 9.5V8a5 5 0 0 1 10 0v1.5" />
+          </svg>
+        </button>
+        <button
+          class="desk-fab desk-toggle"
+          type="button"
+          data-panel="help"
+          aria-expanded="false"
+          aria-controls="desk-panel-help"
+          title="How to play"
+        >
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <circle cx="12" cy="12" r="9" />
+            <path d="M9.6 9.2a2.4 2.4 0 1 1 3.6 2.1c-.8.5-1.2 1-1.2 2v.4" />
+            <circle cx="12" cy="17" r="0.7" fill="currentColor" stroke="none" />
+          </svg>
+        </button>
+        <button
+          class="desk-fab desk-toggle"
+          type="button"
+          data-panel="recipe"
+          aria-expanded="false"
+          aria-controls="desk-panel-recipe"
+          title="Current recipe"
+        >
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M4 11h16v2.2c0 4.2-3.6 7.8-8 7.8s-8-3.6-8-7.8z" />
+            <path d="M8 11V7.5M12 11V6M16 11V8" />
+          </svg>
+        </button>
+        <button
+          class="desk-fab desk-toggle"
+          type="button"
+          data-panel="archive"
+          aria-expanded="false"
+          aria-controls="desk-panel-archive"
+          title="Discovery archive"
+        >
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M4 7h16v3H4z" />
+            <path d="M6 10h12v9H6z" />
+            <path d="M10 14h4" />
+          </svg>
+        </button>
+      </nav>
+      <section id="desk-panel-help" class="desk-panel">
+        <h2>How to play</h2>
+        <p id="desk-hands">
+          Hands appear AFTER Enter XR. Webcam is not used. Desktop uses IWER
+          emulated Quest hands. On a headset, look at your hands after VR starts.
+        </p>
+      </section>
+      <section id="desk-panel-recipe" class="desk-panel">
+        <h2>Recipe</h2>
+        <p id="desk-recipe">Ember Spark: Cosmic Fruit + Star-Pepper. Needs HEAT.</p>
+        <ol id="desk-steps">
+          <li>Grab Cosmic Fruit and Star-Pepper. Drop both in the mixer bowl.</li>
+          <li>Press H or poke the orange heat knob.</li>
+          <li>Stir to 45% (S on desktop, open hand in XR).</li>
+          <li>Grab Ember Dragon. Release it on Ice Gate.</li>
+        </ol>
+      </section>
+      <section id="desk-panel-archive" class="desk-panel">
+        <h2>Archive</h2>
+        <p id="desk-archive">Archive: Ember locked, Grove locked, Mint locked</p>
+      </section>
     </aside>
   </body>
 </html>
