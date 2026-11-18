@@ -1,5 +1,7 @@
 # FOODIVERSE: Cosmic Kitchen
 
+**Hosted URL:** https://pankhuri1999.github.io/FoodVerse/
+
 **Tagline:** The living universe you cook into existence.
 
 VR cooking adventure · creative sandbox · world-building · puzzle adventure
