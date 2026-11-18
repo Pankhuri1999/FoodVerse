@@ -1,0 +1,59 @@
+{
+  "$schema": "./node_modules/@iwsdk/core/dist/schemas/iwsdk-project.v1.schema.json",
+  "version": "iwsdk.project.v1",
+  "scene": "./public/scenes/main.iwsdk.scene.json",
+  "assets": {
+    "module": "./src/assets"
+  },
+  "components": {
+    "module": "./src/components"
+  },
+  "world": {
+    "xr": {
+      "mode": "vr",
+      "offer": "always",
+      "referenceSpace": "local-floor",
+      "features": {
+        "handTracking": true
+      }
+    },
+    "input": {
+      "canvasPointerEvents": true
+    },
+    "render": {
+      "fov": 78,
+      "near": 0.05,
+      "far": 80,
+      "camera": {
+        "position": [
+          0,
+          1.28,
+          0.55
+        ],
+        "lookAt": [
+          0,
+          0.92,
+          -1.05
+        ]
+      }
+    },
+    "features": {
+      "locomotion": false,
+      "grabbing": {
+        "useHandPinchForGrab": true
+      },
+      "physics": false,
+      "sceneUnderstanding": false,
+      "environmentRaycast": false,
+      "spatialUI": {
+        "kit": "horizon",
+        "preferredColorScheme": "dark"
+      }
+    }
+  },
+  "dev": {
+    "emulator": {
+      "device": "metaQuest3"
+    }
+  }
+}

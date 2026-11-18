@@ -1,0 +1,167 @@
+<style>
+  .panel-root {
+    flex-direction: column;
+    width: 110px;
+  }
+
+  .fold-button {
+    justify-content: flex-start;
+    margin-top: 8px;
+    margin-bottom: 8px;
+    margin-left: 8px;
+    margin-right: 8px;
+  }
+
+  .panel-content {
+    flex-direction: column;
+    gap: 5px;
+    padding-top: 8px;
+    padding-right: 16px;
+    padding-bottom: 8px;
+    padding-left: 16px;
+  }
+
+  .eyebrow {
+    color: #6b5a00;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1.2px;
+  }
+
+  .eyebrow:dark {
+    color: #e8c35a;
+  }
+
+  .heading {
+    color: #1c1d20;
+    font-size: 20px;
+    font-weight: 700;
+    line-height: 1.2;
+  }
+
+  .heading:dark {
+    color: #f4f1ea;
+  }
+
+  .tagline {
+    color: #3a3b40;
+    font-size: 12px;
+    line-height: 1.35;
+  }
+
+  .tagline:dark {
+    color: #c5cad3;
+  }
+
+  .rule {
+    height: 2px;
+    width: 100%;
+    background-color: #3aa8c4;
+    margin-top: 3px;
+    margin-bottom: 3px;
+  }
+
+  .row {
+    color: #3a3b40;
+    font-size: 12px;
+    line-height: 1.35;
+  }
+
+  .row:dark {
+    color: #d2d6de;
+  }
+
+  .button {
+    justify-content: flex-start;
+    margin-left: 16px;
+    margin-right: 16px;
+    margin-bottom: 8px;
+  }
+</style>
+<Panel id="mission-root" class="panel-root">
+  <Button id="mission-toggle" class="fold-button">
+    <ButtonIcon>
+      <ClipboardList></ClipboardList>
+    </ButtonIcon>
+    <ButtonLabel>Mission</ButtonLabel>
+  </Button>
+  <div id="mission-body" class="panel-content" style="display: none">
+    <div class="eyebrow">MISSIONS</div>
+    <div class="heading">FOODIVERSE: Cosmic Kitchen</div>
+    <div class="tagline">Space affects cooking. Cooking creates life. Life transforms worlds.</div>
+    <div class="rule"></div>
+    <div id="stage-title" class="row">Step 1 of 10 — Gather Ember Spark</div>
+    <div id="objective" class="row">Place Cosmic Fruit and Star Pepper in the mixer bowl.</div>
+    <div class="eyebrow">INGREDIENTS</div>
+    <div class="row">Cosmic Fruit · Star Pepper · Crystal Sugar · Chocolate · Mint Crystal · Space Leaves</div>
+    <div class="eyebrow">RECIPES</div>
+    <div id="archive-status" class="row">Ember Spark: locked · Grove Bloom: locked · Mint Current: locked · Cookie wafer: locked · Leaf canopy: locked · Chocolate path: locked</div>
+    <div class="eyebrow">PLANET ARCHIVE</div>
+    <div id="kingdom-status" class="row">Ice Gate: frozen · Soil: barren · Water: open · Cookie Bridge: needed · Kingdom: waiting</div>
+    <div id="gravity-status" class="row">You stay seated. Asteroids can tilt the ship. Catch loose food, or press the Stabilizer.</div>
+    <div class="rule"></div>
+    <div id="pause-status" class="row">Seated play. You do not walk. Look with your head. There is no camera shake.</div>
+    <div id="tutorial-text" class="row">Hint 1 of 6: You stay seated. Everything is within arm’s reach. Look around with your head — you do not walk.</div>
+    <div id="comfort-status" class="row">Seated play · Pinch balanced · Reach medium · Volume 70% · full motion</div>
+    <div id="pinch-status" class="row">Pinch  L 0%   R 0%   threshold 61%</div>
+    <div class="rule"></div>
+    <div id="input-mode" class="row">Computer view. Click and drag food, or press Enter VR to use hands.</div>
+    <div id="mixer-status" class="row">The mixer is empty. Place Cosmic Fruit and Star Pepper in the bowl.</div>
+    <div id="temp-status" class="row">Temperature: idle</div>
+    <div id="stir-progress" class="row">Stir: 0%  (need 45%)</div>
+    <Button id="heat-button" class="button">
+      <ButtonLabel>Heat</ButtonLabel>
+    </Button>
+    <Button id="cool-button" class="button">
+      <ButtonLabel>Cool</ButtonLabel>
+    </Button>
+    <Button id="stabilize-button" class="button">
+      <ButtonLabel>Stabilizer</ButtonLabel>
+    </Button>
+    <Button id="pause-button" class="button">
+      <ButtonLabel>Pause / Resume</ButtonLabel>
+    </Button>
+    <Button id="tutorial-button" class="button">
+      <ButtonLabel>Show hints</ButtonLabel>
+    </Button>
+    <Button id="tutorial-next-button" class="button">
+      <ButtonLabel>Next hint</ButtonLabel>
+    </Button>
+    <Button id="pinch-easier-button" class="button">
+      <ButtonLabel>Easier pinch</ButtonLabel>
+    </Button>
+    <Button id="pinch-firmer-button" class="button">
+      <ButtonLabel>Firmer pinch</ButtonLabel>
+    </Button>
+    <Button id="reach-minus-button" class="button">
+      <ButtonLabel>Shorter reach</ButtonLabel>
+    </Button>
+    <Button id="reach-plus-button" class="button">
+      <ButtonLabel>Longer reach</ButtonLabel>
+    </Button>
+    <Button id="volume-minus-button" class="button">
+      <ButtonLabel>Volume down</ButtonLabel>
+    </Button>
+    <Button id="volume-plus-button" class="button">
+      <ButtonLabel>Volume up</ButtonLabel>
+    </Button>
+    <Button id="motion-button" class="button">
+      <ButtonLabel>Reduced motion</ButtonLabel>
+    </Button>
+    <Button id="restart-button" class="button">
+      <ButtonLabel>Restart mission</ButtonLabel>
+    </Button>
+    <Button id="xr-button" class="button">
+      <ButtonIcon>
+        <RectangleGoggles></RectangleGoggles>
+      </ButtonIcon>
+      <ButtonLabel>Enter VR</ButtonLabel>
+    </Button>
+    <Button id="exit-button" class="button" style="display: none">
+      <ButtonIcon>
+        <LogIn></LogIn>
+      </ButtonIcon>
+      <ButtonLabel>Exit VR</ButtonLabel>
+    </Button>
+  </div>
+</Panel>

@@ -1,0 +1,349 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, shrink-to-fit=no"
+    />
+    <meta name="theme-color" content="#0c1016" />
+    <meta name="color-scheme" content="dark" />
+    <meta
+      name="description"
+      content="A seated WebXR kitchen in space. Cook three recipes, hatch three creatures, and restore the Cookie Kingdom."
+    />
+    <meta name="application-name" content="FOODIVERSE" />
+    <link rel="manifest" href="./manifest.webmanifest" />
+    <link rel="icon" href="./icons/icon-192.png" />
+    <title>FOODIVERSE · Cosmic Kitchen</title>
+    <style>
+      :root {
+        --hud-ink: #f6f3ec;
+        --hud-muted: #c3cad4;
+        --hud-accent: #6fd3e8;
+        --hud-gold: #e8c35a;
+        --hud-orange: #f08a48;
+        --hud-mint: #7ec8b0;
+        --hud-choc: #c48a58;
+        --hud-glass: rgba(22, 14, 10, 0.84);
+        --hud-line: rgba(111, 211, 232, 0.42);
+        --hud-font: system-ui, 'Segoe UI', 'Noto Sans', 'Helvetica Neue', Arial,
+          sans-serif;
+      }
+      html,
+      body,
+      #scene-container {
+        margin: 0;
+        height: 100%;
+        background: #0c1016;
+      }
+      #desk-hud {
+        position: fixed;
+        left: 18px;
+        top: 18px;
+        z-index: 20;
+        width: auto;
+        max-width: min(392px, calc(100vw - 36px));
+        font-family: var(--hud-font);
+        color: var(--hud-ink);
+        background: transparent;
+        border: 0;
+        padding: 0;
+        pointer-events: none;
+      }
+      .desk-dock,
+      .desk-panel {
+        pointer-events: auto;
+      }
+      .desk-dock {
+        display: flex;
+        gap: 8px;
+      }
+      .desk-fab {
+        width: 46px;
+        height: 46px;
+        border: 1px solid var(--hud-line);
+        border-radius: 14px;
+        padding: 0;
+        display: grid;
+        place-items: center;
+        cursor: pointer;
+        color: #e8f7fb;
+        background: var(--hud-glass);
+        backdrop-filter: blur(14px);
+        -webkit-backdrop-filter: blur(14px);
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.28);
+        transition: border-color 0.18s ease, color 0.18s ease,
+          background 0.18s ease;
+      }
+      .desk-fab:hover,
+      .desk-fab:focus-visible {
+        border-color: var(--hud-gold);
+        color: var(--hud-gold);
+        outline: none;
+      }
+      .desk-fab svg {
+        width: 22px;
+        height: 22px;
+        fill: none;
+        stroke: currentColor;
+        stroke-width: 1.7;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+      }
+      .desk-fab[aria-expanded='true'] {
+        border-color: var(--hud-gold);
+        color: var(--hud-gold);
+      }
+      #desk-enter-xr {
+        color: #071018;
+        background: #5ed4e8;
+        border-color: #5ed4e8;
+      }
+      #desk-enter-xr:hover,
+      #desk-enter-xr:focus-visible {
+        color: #071018;
+        background: #8ee4f2;
+        border-color: #8ee4f2;
+      }
+      .desk-panel {
+        display: none;
+        margin-top: 12px;
+        background: var(--hud-glass);
+        border: 1px solid var(--hud-line);
+        border-radius: 16px;
+        padding: 16px 18px 14px;
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        box-shadow: 0 16px 40px rgba(0, 0, 0, 0.32);
+      }
+      .desk-panel.is-open {
+        display: block;
+      }
+      .desk-kicker {
+        margin: 0 0 4px;
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: var(--hud-gold);
+      }
+      .desk-panel h2 {
+        margin: 0 0 8px;
+        font-size: 17px;
+        font-weight: 650;
+        letter-spacing: 0.01em;
+        line-height: 1.25;
+      }
+      .desk-panel p,
+      .desk-panel li {
+        margin: 0 0 8px;
+        font-size: 14px;
+        line-height: 1.5;
+        color: var(--hud-muted);
+      }
+      .desk-panel ol,
+      .desk-panel ul {
+        margin: 0;
+        padding-left: 1.15em;
+      }
+      .desk-note {
+        margin-top: 10px;
+        padding-top: 8px;
+        border-top: 1px solid rgba(111, 211, 232, 0.18);
+        font-size: 12px;
+        color: #9aa4b2;
+      }
+      #desk-recipe {
+        color: var(--hud-gold);
+        font-weight: 600;
+      }
+      .desk-archive {
+        list-style: none;
+        padding-left: 0;
+      }
+      .desk-archive li {
+        display: flex;
+        align-items: baseline;
+        gap: 8px;
+        margin: 0 0 6px;
+      }
+      .desk-archive li::before {
+        content: '';
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+        background: #4a5564;
+        flex-shrink: 0;
+        transform: translateY(-1px);
+      }
+      .desk-archive li.is-found {
+        color: var(--hud-ink);
+      }
+      .desk-archive li.is-found::before {
+        background: var(--hud-accent);
+      }
+      .desk-ings {
+        list-style: none;
+        padding-left: 0;
+      }
+      .desk-ings li {
+        display: flex;
+        align-items: baseline;
+        gap: 8px;
+        margin: 0 0 6px;
+        color: var(--hud-ink);
+      }
+      .desk-ings li::before {
+        content: '';
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        flex-shrink: 0;
+        transform: translateY(-1px);
+      }
+      .ing-fruit::before { background: var(--hud-orange); }
+      .ing-pepper::before { background: #e05040; }
+      .ing-sugar::before { background: #f4efe4; }
+      .ing-choc::before { background: var(--hud-choc); }
+      .ing-mint::before { background: var(--hud-mint); }
+      .ing-leaves::before { background: #5aaa58; }
+      @media (prefers-reduced-motion: reduce) {
+        .desk-fab {
+          transition: none;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div id="scene-container"></div>
+    <aside id="desk-hud">
+      <nav class="desk-dock" aria-label="Kitchen information">
+        <button
+          id="desk-enter-xr"
+          class="desk-fab"
+          type="button"
+          title="Enter VR"
+          aria-label="Enter VR"
+        >
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M3 9.5h18v7.5a2 2 0 0 1-2 2h-4l-1.5-2h-3L9 19H5a2 2 0 0 1-2-2z" />
+            <path d="M7 9.5V8a5 5 0 0 1 10 0v1.5" />
+          </svg>
+        </button>
+        <button
+          class="desk-fab desk-toggle"
+          type="button"
+          data-panel="help"
+          aria-expanded="false"
+          aria-controls="desk-panel-help"
+          title="Missions"
+          aria-label="Missions"
+        >
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M8 4h9a2 2 0 0 1 2 2v14l-3-1.5L13 20l-3-1.5L7 20V6a2 2 0 0 1 1-2z" />
+            <path d="M10 9h6M10 13h6" />
+          </svg>
+        </button>
+        <button
+          class="desk-fab desk-toggle"
+          type="button"
+          data-panel="ingredients"
+          aria-expanded="false"
+          aria-controls="desk-panel-ingredients"
+          title="Ingredients"
+          aria-label="Ingredients"
+        >
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M12 3c2.2 2.4 5 5.4 5 8.2A5 5 0 0 1 7 11.2C7 8.4 9.8 5.4 12 3z" />
+            <path d="M12 21v-7" />
+          </svg>
+        </button>
+        <button
+          class="desk-fab desk-toggle"
+          type="button"
+          data-panel="recipe"
+          aria-expanded="false"
+          aria-controls="desk-panel-recipe"
+          title="Recipes"
+          aria-label="Recipes"
+        >
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M4 11h16v2.2c0 4.2-3.6 7.8-8 7.8s-8-3.6-8-7.8z" />
+            <path d="M8 11V7.5M12 11V6M16 11V8" />
+          </svg>
+        </button>
+        <button
+          class="desk-fab desk-toggle"
+          type="button"
+          data-panel="archive"
+          aria-expanded="false"
+          aria-controls="desk-panel-archive"
+          title="Planet Archive"
+          aria-label="Planet Archive"
+        >
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <circle cx="12" cy="12" r="8" />
+            <path d="M4.5 12h15" />
+            <path d="M12 4a12 12 0 0 1 0 16" />
+            <path d="M12 4a12 12 0 0 0 0 16" />
+          </svg>
+        </button>
+      </nav>
+      <section id="desk-panel-help" class="desk-panel">
+        <p class="desk-kicker">Missions</p>
+        <h2>How to play</h2>
+        <p id="desk-hands">
+          This is a seated kitchen. Press Enter VR. On a computer, keep the
+          preview on Controllers and hold Trigger · Grab on the Left or Right
+          Touch pad. On a Meta headset, squeeze the real trigger. Food sits on
+          the trays until you grab it. Let go in the air and it floats.
+        </p>
+        <p class="desk-note">
+          Computer: hold Trigger to grab · Q left grab · click right grab · H heat · C cool · S stir · G stabilizer
+        </p>
+      </section>
+      <section id="desk-panel-ingredients" class="desk-panel">
+        <p class="desk-kicker">Ingredients</p>
+        <h2>Cosmic pantry</h2>
+        <ul class="desk-ings">
+          <li class="ing-fruit">Cosmic Fruit — warm orange orb</li>
+          <li class="ing-pepper">Star Pepper — pointed star chili</li>
+          <li class="ing-sugar">Crystal Sugar — clear shards</li>
+          <li class="ing-choc">Chocolate — foil-wrapped bar</li>
+          <li class="ing-mint">Mint Crystal — mint-green shards</li>
+          <li class="ing-leaves">Space Leaves — leafy cluster</li>
+        </ul>
+      </section>
+      <section id="desk-panel-recipe" class="desk-panel">
+        <p class="desk-kicker">Recipes</p>
+        <h2>Current recipe</h2>
+        <p id="desk-recipe">
+          Ember Spark — Cosmic Fruit and Star Pepper. Requires heat.
+        </p>
+        <ol id="desk-steps">
+          <li>Pick up Cosmic Fruit and Star Pepper. Place both in the mixer bowl.</li>
+          <li>Press Heat (H). If food floats, catch it or press Stabilizer (G).</li>
+          <li>Press S, or hold the pointer on the bowl, until stir reaches 45%.</li>
+          <li>
+            Pick up Ember Dragon onto the Ice Gate, then place the cookie wafer
+            on Cookie Bridge.
+          </li>
+        </ol>
+      </section>
+      <section id="desk-panel-archive" class="desk-panel">
+        <p class="desk-kicker">Planet Archive</p>
+        <h2>Cookie Kingdom</h2>
+        <ul id="desk-planet" class="desk-archive">
+          <li class="is-locked">Ice Gate — locked</li>
+          <li class="is-locked">Forest — locked</li>
+          <li class="is-locked">Water Path — locked</li>
+          <li class="is-locked">Cookie wafer — locked</li>
+          <li class="is-locked">Leaf canopy — locked</li>
+          <li class="is-locked">Chocolate river — locked</li>
+        </ul>
+      </section>
+    </aside>
+    <script type="module" src="/src/index.ts"></script>
+  </body>
+</html>

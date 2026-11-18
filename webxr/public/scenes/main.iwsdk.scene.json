@@ -1,0 +1,584 @@
+{
+  "version": "iwsdk.scene.v1",
+  "units": "meters",
+  "components": {
+    "com.iwsdk.components.DomeGradient": {
+      "sky": [0.01, 0.012, 0.02, 1],
+      "equator": [0.02, 0.022, 0.03, 1],
+      "ground": [0.004, 0.004, 0.006, 1],
+      "intensity": 0.4,
+      "dither": true
+    },
+    "com.iwsdk.components.IBLGradient": {
+      "sky": [0.08, 0.14, 0.2, 1],
+      "equator": [0.28, 0.16, 0.08, 1],
+      "ground": [0.08, 0.05, 0.03, 1],
+      "intensity": 0.58
+    }
+  },
+  "environment": {
+    "toneMapping": "aces",
+    "exposure": 1.16,
+    "shadows": true,
+    "shadowMapType": "pcf"
+  },
+  "resources": {},
+  "authoring": {
+    "views": [
+      {
+        "id": "hero",
+        "role": "hero",
+        "projection": "perspective",
+        "position": [0, 1.28, 0.55],
+        "target": [0, 0.88, -1.0],
+        "fov": 70
+      }
+    ]
+  },
+  "nodes": [
+    {
+      "id": "cabin-hull",
+      "name": "Cabin Hull",
+      "framingRole": "support",
+      "content": {
+        "type": "asset",
+        "asset": "cabin-hull",
+        "receiveShadow": true
+      },
+      "components": {
+        "KitchenStation": { "role": "hull" }
+      }
+    },
+    {
+      "id": "space-vista",
+      "name": "Space Vista",
+      "framingRole": "support",
+      "content": {
+        "type": "asset",
+        "asset": "space-vista"
+      }
+    },
+    {
+      "id": "cook-station",
+      "name": "Cooking Workstation",
+      "content": {
+        "type": "asset",
+        "asset": "cook-station",
+        "castShadow": true,
+        "receiveShadow": true
+      },
+      "transform": {
+        "position": [0, 0, -0.95]
+      },
+      "components": {
+        "KitchenStation": { "role": "counter" },
+        "ContactShadow": { "size": [1.85, 0.9] }
+      }
+    },
+    {
+      "id": "quantum-mixer",
+      "name": "Quantum Mixer",
+      "content": {
+        "type": "asset",
+        "asset": "quantum-mixer",
+        "castShadow": true,
+        "receiveShadow": true
+      },
+      "transform": {
+        "position": [0, 0.16, -0.9]
+      },
+      "components": {
+        "QuantumMixer": {
+          "armed": false,
+          "cooking": false,
+          "count": 0,
+          "temperature": "neutral",
+          "stir": 0,
+          "stirring": false,
+          "phase": "idle",
+          "transformT": 0,
+          "pendingRecipe": ""
+        },
+        "GravityCore": {
+          "mode": "normal",
+          "eventMode": "zero-g",
+          "eventT": 0,
+          "fired": false,
+          "reversed": false,
+          "stabilizer": false,
+          "stabilizeT": 0
+        },
+        "ContactShadow": { "size": [0.5, 0.5] }
+      }
+    },
+    {
+      "id": "heat-control",
+      "name": "Heat Knob",
+      "content": {
+        "type": "asset",
+        "asset": "heat-control",
+        "castShadow": true
+      },
+      "transform": { "position": [0.34, 0.78, -0.7] },
+      "components": {
+        "HeatControl": { "active": false },
+        "RayInteractable": {},
+        "PokeInteractable": {}
+      }
+    },
+    {
+      "id": "cool-control",
+      "name": "Cool Knob",
+      "content": {
+        "type": "asset",
+        "asset": "cool-control",
+        "castShadow": true
+      },
+      "transform": { "position": [-0.34, 0.78, -0.7] },
+      "components": {
+        "CoolControl": { "active": false },
+        "RayInteractable": {},
+        "PokeInteractable": {}
+      }
+    },
+    {
+      "id": "gravity-control",
+      "name": "Stabilizer",
+      "content": {
+        "type": "asset",
+        "asset": "gravity-control",
+        "castShadow": true
+      },
+      "transform": { "position": [0, 0.78, -0.52] },
+      "components": {
+        "StabilizerControl": { "active": false },
+        "RayInteractable": {},
+        "PokeInteractable": {}
+      }
+    },
+    {
+      "id": "stir-well",
+      "name": "Stir Well",
+      "content": {
+        "type": "asset",
+        "asset": "stir-well"
+      },
+      "transform": { "position": [0, 0.94, -0.9] },
+      "components": {
+        "StirWell": { "armed": false },
+        "RayInteractable": {},
+        "PokeInteractable": {}
+      }
+    },
+    {
+      "id": "ember-dragon",
+      "name": "Ember Dragon",
+      "content": {
+        "type": "asset",
+        "asset": "ember-dragon",
+        "castShadow": true
+      },
+      "transform": {
+        "position": [0.08, 1.02, -0.72],
+        "scale": 0.001
+      },
+      "components": {
+        "Creature": { "id": "ember-dragon", "recipeId": "ember-spark", "hatched": false, "delivered": false, "spiral": false }
+      }
+    },
+    {
+      "id": "grove-guardian",
+      "name": "Grove Guardian",
+      "content": {
+        "type": "asset",
+        "asset": "grove-guardian",
+        "castShadow": true
+      },
+      "transform": {
+        "position": [-0.1, 1.02, -0.72],
+        "scale": 0.001
+      },
+      "components": {
+        "Creature": { "id": "grove-guardian", "recipeId": "grove-bloom", "hatched": false, "delivered": false, "spiral": false }
+      }
+    },
+    {
+      "id": "mint-current",
+      "name": "Mint Current",
+      "content": {
+        "type": "asset",
+        "asset": "mint-current",
+        "castShadow": true
+      },
+      "transform": {
+        "position": [0, 1.04, -0.62],
+        "scale": 0.001
+      },
+      "components": {
+        "Creature": { "id": "mint-current", "recipeId": "mint-current", "hatched": false, "delivered": false, "spiral": false }
+      }
+    },
+    {
+      "id": "ingredient-left",
+      "name": "Ingredient Station Left",
+      "content": {
+        "type": "asset",
+        "asset": "ingredient-display",
+        "castShadow": true,
+        "receiveShadow": true
+      },
+      "transform": {
+        "position": [-0.48, 0, -0.9],
+        "rotationDeg": [0, 8, 0]
+      },
+      "components": {
+        "IngredientStation": { "slot": 0 },
+        "ContactShadow": { "size": [0.55, 0.4] }
+      }
+    },
+    {
+      "id": "ingredient-right",
+      "name": "Ingredient Station Right",
+      "content": {
+        "type": "asset",
+        "asset": "ingredient-display",
+        "castShadow": true,
+        "receiveShadow": true
+      },
+      "transform": {
+        "position": [0.48, 0, -0.9],
+        "rotationDeg": [0, -8, 0]
+      },
+      "components": {
+        "IngredientStation": { "slot": 1 },
+        "ContactShadow": { "size": [0.55, 0.4] }
+      }
+    },
+    {
+      "id": "ing-cosmic-fruit",
+      "name": "Cosmic Fruit",
+      "content": {
+        "type": "asset",
+        "asset": "ing-cosmic-fruit",
+        "castShadow": true
+      },
+      "transform": { "position": [-0.62, 0.84, -0.88], "scale": 1.7 },
+      "components": {
+        "Ingredient": { "id": "cosmic-fruit", "label": "Cosmic Fruit", "inMixer": false, "heated": false, "lockout": 0 },
+        "RayInteractable": {},
+        "PokeInteractable": {},
+        "OneHandGrabbable": { "translate": true, "rotate": true }
+      }
+    },
+    {
+      "id": "ing-star-pepper",
+      "name": "Star-Pepper",
+      "content": {
+        "type": "asset",
+        "asset": "ing-star-pepper",
+        "castShadow": true
+      },
+      "transform": { "position": [-0.48, 0.84, -0.88], "scale": 1.7 },
+      "components": {
+        "Ingredient": { "id": "star-pepper", "label": "Star-Pepper", "inMixer": false, "heated": false, "lockout": 0 },
+        "RayInteractable": {},
+        "PokeInteractable": {},
+        "OneHandGrabbable": { "translate": true, "rotate": true }
+      }
+    },
+    {
+      "id": "ing-space-leaves",
+      "name": "Space Leaves",
+      "content": {
+        "type": "asset",
+        "asset": "ing-space-leaves",
+        "castShadow": true
+      },
+      "transform": { "position": [-0.34, 0.84, -0.88], "scale": 1.7 },
+      "components": {
+        "Ingredient": { "id": "space-leaves", "label": "Space Leaves", "inMixer": false, "heated": false, "lockout": 0 },
+        "RayInteractable": {},
+        "PokeInteractable": {},
+        "OneHandGrabbable": { "translate": true, "rotate": true }
+      }
+    },
+    {
+      "id": "ing-chocolate",
+      "name": "Chocolate",
+      "content": {
+        "type": "asset",
+        "asset": "ing-chocolate",
+        "castShadow": true
+      },
+      "transform": { "position": [0.34, 0.84, -0.88], "scale": 1.7 },
+      "components": {
+        "Ingredient": { "id": "chocolate", "label": "Chocolate", "inMixer": false, "heated": false, "lockout": 0 },
+        "RayInteractable": {},
+        "PokeInteractable": {},
+        "OneHandGrabbable": { "translate": true, "rotate": true }
+      }
+    },
+    {
+      "id": "ing-crystal-sugar",
+      "name": "Crystal Sugar",
+      "content": {
+        "type": "asset",
+        "asset": "ing-crystal-sugar",
+        "castShadow": true
+      },
+      "transform": { "position": [0.48, 0.84, -0.88], "scale": 1.7 },
+      "components": {
+        "Ingredient": { "id": "crystal-sugar", "label": "Crystal Sugar", "inMixer": false, "heated": false, "lockout": 0 },
+        "RayInteractable": {},
+        "PokeInteractable": {},
+        "OneHandGrabbable": { "translate": true, "rotate": true }
+      }
+    },
+    {
+      "id": "ing-mint-crystal",
+      "name": "Mint Crystal",
+      "content": {
+        "type": "asset",
+        "asset": "ing-mint-crystal",
+        "castShadow": true
+      },
+      "transform": { "position": [0.62, 0.84, -0.88], "scale": 1.7 },
+      "components": {
+        "Ingredient": { "id": "mint-crystal", "label": "Mint Crystal", "inMixer": false, "heated": false, "lockout": 0 },
+        "RayInteractable": {},
+        "PokeInteractable": {},
+        "OneHandGrabbable": { "translate": true, "rotate": true }
+      }
+    },
+    {
+      "id": "cookie-kingdom",
+      "name": "Cookie Kingdom",
+      "content": {
+        "type": "asset",
+        "asset": "cookie-kingdom",
+        "castShadow": true,
+        "receiveShadow": true
+      },
+      "transform": {
+        "position": [0.34, 0, -1.18]
+      },
+      "components": {
+        "CookieKingdom": {
+          "restored": 0,
+          "ice": false,
+          "grove": false,
+          "water": false,
+          "feast": false,
+          "wafer": false,
+          "cocoa": false,
+          "foliage": false
+        },
+        "ContactShadow": { "size": [0.42, 0.42] }
+      }
+    },
+    {
+      "id": "discovery-archive",
+      "name": "Discovery Archive",
+      "content": {
+        "type": "asset",
+        "asset": "discovery-archive",
+        "castShadow": true
+      },
+      "transform": {
+        "position": [-0.48, 0.78, -0.5],
+        "rotationDeg": [12, 28, 0]
+      }
+    },
+    {
+      "id": "build-cookie",
+      "name": "Cookie Wafer",
+      "content": {
+        "type": "asset",
+        "asset": "build-cookie",
+        "castShadow": true
+      },
+      "transform": { "position": [0.5, 0.82, -0.98] },
+      "components": {
+        "BuildPiece": { "kind": "cookie", "placed": false },
+        "RayInteractable": {},
+        "PokeInteractable": {},
+        "OneHandGrabbable": { "translate": true, "rotate": true }
+      }
+    },
+    {
+      "id": "build-chocolate",
+      "name": "Chocolate Path",
+      "content": {
+        "type": "asset",
+        "asset": "build-chocolate",
+        "castShadow": true
+      },
+      "transform": { "position": [0.58, 0.82, -1.06] },
+      "components": {
+        "BuildPiece": { "kind": "chocolate", "placed": false },
+        "RayInteractable": {},
+        "PokeInteractable": {},
+        "OneHandGrabbable": { "translate": true, "rotate": true }
+      }
+    },
+    {
+      "id": "build-leaf",
+      "name": "Leaf Bundle",
+      "content": {
+        "type": "asset",
+        "asset": "build-leaf",
+        "castShadow": true
+      },
+      "transform": { "position": [0.66, 0.82, -0.98] },
+      "components": {
+        "BuildPiece": { "kind": "leaf", "placed": false },
+        "RayInteractable": {},
+        "PokeInteractable": {},
+        "OneHandGrabbable": { "translate": true, "rotate": true }
+      }
+    },
+    {
+      "id": "mission-hud",
+      "name": "Mission Panel",
+      "content": {
+        "type": "asset",
+        "asset": "mission-panel"
+      },
+      "transform": {
+        "position": [-0.78, 1.38, -0.55],
+        "rotationDeg": [0, 40, 0],
+        "scale": 0.12
+      },
+      "components": {
+        "MissionHud": { "visible": true },
+        "ComfortSettings": {
+          "pinchEase": 0.5,
+          "grabReach": 0.08,
+          "volume": 0.7,
+          "reducedMotion": false,
+          "paused": false,
+          "tutorialStep": 0,
+          "tutorialSeen": false
+        },
+        "Mission": {
+          "stage": "collect-ember",
+          "index": 1,
+          "allowedRecipe": "ember-spark",
+          "target": "",
+          "notice": "",
+          "noticeT": 0,
+          "restored": false
+        },
+        "RayInteractable": {},
+        "PokeInteractable": {}
+      }
+    },
+    {
+      "id": "cook-guide",
+      "name": "Cook Guide",
+      "content": {
+        "type": "asset",
+        "asset": "cook-guide"
+      },
+      "transform": {
+        "position": [0.78, 1.38, -0.52],
+        "rotationDeg": [0, -40, 0],
+        "scale": 0.12
+      },
+      "components": {
+        "RayInteractable": {},
+        "PokeInteractable": {}
+      }
+    },
+    {
+      "id": "window-sun",
+      "name": "Window Light",
+      "transform": {
+        "position": [0.15, 1.55, -2.85]
+      },
+      "components": {
+        "com.iwsdk.components.PointLight": {
+          "color": [1, 0.78, 0.48, 1],
+          "intensity": 5.1,
+          "distance": 12,
+          "decay": 2,
+          "castShadow": true
+        }
+      }
+    },
+    {
+      "id": "cove-fill",
+      "name": "Cove Fill",
+      "transform": {
+        "position": [0, 2.2, -1.1]
+      },
+      "components": {
+        "com.iwsdk.components.PointLight": {
+          "color": [1, 0.62, 0.32, 1],
+          "intensity": 1.25,
+          "distance": 5,
+          "decay": 2,
+          "castShadow": false
+        }
+      }
+    },
+    {
+      "id": "key-light",
+      "name": "Key Light",
+      "transform": {
+        "position": [-1.8, 2.8, 0.6],
+        "rotationDeg": [-42, -28, 0]
+      },
+      "components": {
+        "com.iwsdk.components.DirectionalLight": {
+          "color": [1, 0.86, 0.68, 1],
+          "intensity": 1.55,
+          "castShadow": true
+        }
+      }
+    },
+    {
+      "id": "hemisphere",
+      "name": "Cabin Hemisphere",
+      "components": {
+        "com.iwsdk.components.HemisphereLight": {
+          "skyColor": [0.18, 0.28, 0.32, 1],
+          "groundColor": [0.16, 0.08, 0.04, 1],
+          "intensity": 0.4
+        }
+      }
+    },
+    {
+      "id": "starboard-fill",
+      "name": "Starboard Fill",
+      "transform": {
+        "position": [1.65, 1.72, -1.35]
+      },
+      "components": {
+        "com.iwsdk.components.PointLight": {
+          "color": [0.45, 0.85, 0.72, 1],
+          "intensity": 1.05,
+          "distance": 8,
+          "decay": 2,
+          "castShadow": false
+        }
+      }
+    },
+    {
+      "id": "galley-warm",
+      "name": "Galley Warm",
+      "transform": {
+        "position": [0, 1.82, -0.92]
+      },
+      "components": {
+        "com.iwsdk.components.PointLight": {
+          "color": [1, 0.68, 0.38, 1],
+          "intensity": 2.1,
+          "distance": 3.6,
+          "decay": 2,
+          "castShadow": false
+        }
+      }
+    }
+  ]
+}
